@@ -1,21 +1,24 @@
 package com.example.prm_shoppingproject.Model;
 
+import java.util.List;
+
 public class Account {
     public int AccountID;
     public String Name;
     public String Email;
     public String Phone;
-    public String UserName;
+    public String Username;
     public String Password;
     public int RoleID;
     public int Status;
+    public List<Cart> Cart;
 
     public Account(int accountID, String name, String email, String phone, String userName, String password, int roleID, int status) {
         AccountID = accountID;
         Name = name;
         Email = email;
         Phone = phone;
-        UserName = userName;
+        Username = userName;
         Password = password;
         RoleID = roleID;
         Status = status;
@@ -23,6 +26,22 @@ public class Account {
 
     public Account() {
 
+    }
+
+    public String getUsername() {
+        return Username;
+    }
+
+    public void setUsername(String username) {
+        Username = username;
+    }
+
+    public List<com.example.prm_shoppingproject.Model.Cart> getCart() {
+        return Cart;
+    }
+
+    public void setCart(List<com.example.prm_shoppingproject.Model.Cart> cart) {
+        Cart = cart;
     }
 
     public int getAccountID() {
@@ -54,11 +73,11 @@ public class Account {
     }
 
     public String getUserName() {
-        return UserName;
+        return Username;
     }
 
     public void setUserName(String userName) {
-        UserName = userName;
+        Username = userName;
     }
 
     public String getPassword() {

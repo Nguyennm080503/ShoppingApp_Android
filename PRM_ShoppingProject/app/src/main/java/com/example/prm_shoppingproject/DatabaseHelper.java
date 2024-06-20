@@ -4,6 +4,12 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ShoppingDB";
     private static final int DATABASE_VERSION = 1;
@@ -11,6 +17,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
+
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -43,6 +50,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "AccountID INTEGER, " +
                 "OrderDate TEXT," +
                 "Total REAL, " +
+                "Address TEXT," +
                 "FOREIGN KEY(AccountID) REFERENCES Account(AccountID))");
 
         db.execSQL("CREATE TABLE CartDetail (" +
@@ -53,6 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "Total REAL, " +
                 "FOREIGN KEY(OrderID) REFERENCES Cart(CardID)," +
                 "FOREIGN KEY(ProductID) REFERENCES Product(ProductID))");
+
     }
 
     @Override
@@ -64,4 +73,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS CartDetail");
         onCreate(db);
     }
+
+
 }
