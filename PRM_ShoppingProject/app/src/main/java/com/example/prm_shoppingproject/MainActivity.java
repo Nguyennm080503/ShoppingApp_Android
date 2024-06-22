@@ -1,6 +1,8 @@
 package com.example.prm_shoppingproject;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
@@ -52,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
                 String password = passwordEditText.getText().toString().trim();
                 Account account = accountAction.GetAccountIDLogin(username, password);
 
+                SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+
                 if (username.isEmpty() || password.isEmpty()) {
                     Toast.makeText(MainActivity.this, "Please enter both username and password", Toast.LENGTH_SHORT).show();
                 } else {
@@ -59,11 +64,15 @@ public class MainActivity extends AppCompatActivity {
                     if (account.RoleID == 1 && account.Status == 0) {
                         Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                        editor.putInt("accountID", account.AccountID);
+                        editor.apply();
                         startActivity(intent);
                     }
                     else if(account.RoleID == 0 && account.Status == 0){
                         Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                        editor.putInt("accountID", account.AccountID);
+                        editor.apply();
                         startActivity(intent);
                     }
                     else if(account.Status == 1){

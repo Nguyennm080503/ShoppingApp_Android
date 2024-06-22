@@ -65,7 +65,7 @@ public class ProductAction {
             @SuppressLint("Range") int productdbID = cursor.getInt(cursor.getColumnIndex("ProductID"));
             @SuppressLint("Range") String nameProduct  = cursor.getString(cursor.getColumnIndex("Name"));
             @SuppressLint("Range") double price = cursor.getDouble(cursor.getColumnIndex("Price"));
-            @SuppressLint("Range") String image = cursor.getString(cursor.getColumnIndex("Image"));
+            @SuppressLint("Range") byte[] image = cursor.getBlob(cursor.getColumnIndex("Image"));
             @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex("Description"));
             @SuppressLint("Range") int typeID = cursor.getInt(cursor.getColumnIndex("TypeID"));
             @SuppressLint("Range") int status = cursor.getInt(cursor.getColumnIndex("Status"));
@@ -82,14 +82,14 @@ public class ProductAction {
     public List<Product> getAllProducts() {
         SQLiteDatabase db = openHelper.getReadableDatabase();
         List<Product> productList = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT * FROM Product", null);
+        Cursor cursor = db.rawQuery("SELECT * FROM Product Where Status = 0", null);
 
         if (cursor.moveToFirst()) {
             do {
                 @SuppressLint("Range") int productID = cursor.getInt(cursor.getColumnIndex("ProductID"));
                 @SuppressLint("Range") String nameProduct  = cursor.getString(cursor.getColumnIndex("Name"));
                 @SuppressLint("Range") double price = cursor.getDouble(cursor.getColumnIndex("Price"));
-                @SuppressLint("Range") String image = cursor.getString(cursor.getColumnIndex("Image"));
+                @SuppressLint("Range") byte[] image = cursor.getBlob(cursor.getColumnIndex("Image"));
                 @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex("Description"));
                 @SuppressLint("Range") int typeID = cursor.getInt(cursor.getColumnIndex("TypeID"));
                 @SuppressLint("Range") int status = cursor.getInt(cursor.getColumnIndex("Status"));
@@ -114,7 +114,7 @@ public class ProductAction {
                 @SuppressLint("Range") int productID = cursor.getInt(cursor.getColumnIndex("ProductID"));
                 @SuppressLint("Range") String nameProduct  = cursor.getString(cursor.getColumnIndex("Name"));
                 @SuppressLint("Range") double price = cursor.getDouble(cursor.getColumnIndex("Price"));
-                @SuppressLint("Range") String image = cursor.getString(cursor.getColumnIndex("Image"));
+                @SuppressLint("Range") byte[] image = cursor.getBlob(cursor.getColumnIndex("Image"));
                 @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex("Description"));
                 @SuppressLint("Range") int typedbID = cursor.getInt(cursor.getColumnIndex("TypeID"));
                 @SuppressLint("Range") int status = cursor.getInt(cursor.getColumnIndex("Status"));
@@ -139,7 +139,7 @@ public class ProductAction {
             @SuppressLint("Range") int productID = cursor.getInt(cursor.getColumnIndex("ProductID"));
             @SuppressLint("Range") String nameProduct  = cursor.getString(cursor.getColumnIndex("Name"));
             @SuppressLint("Range") double price = cursor.getDouble(cursor.getColumnIndex("Price"));
-            @SuppressLint("Range") String image = cursor.getString(cursor.getColumnIndex("Image"));
+            @SuppressLint("Range") byte[] image = cursor.getBlob(cursor.getColumnIndex("Image"));
             @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex("Description"));
             @SuppressLint("Range") int typeID = cursor.getInt(cursor.getColumnIndex("TypeID"));
             @SuppressLint("Range") int status = cursor.getInt(cursor.getColumnIndex("Status"));

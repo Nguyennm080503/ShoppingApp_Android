@@ -93,6 +93,29 @@ public class AccountAction {
         return account;
     }
 
+    public Account GetAccountByID(int accountId){
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        Account account = new Account();
+        Cursor cursor = db.rawQuery("SELECT * FROM Account WHERE AccountID = ?", new String[]{String.valueOf(accountId)});
+
+        if (cursor.moveToFirst()) {
+            @SuppressLint("Range") int accountID = cursor.getInt(cursor.getColumnIndex("AccountID"));
+            @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex("Name"));
+            @SuppressLint("Range") String email = cursor.getString(cursor.getColumnIndex("Email"));
+            @SuppressLint("Range") String phone = cursor.getString(cursor.getColumnIndex("Phone"));
+            @SuppressLint("Range") String username_db = cursor.getString(cursor.getColumnIndex("Username"));
+            @SuppressLint("Range") int roleID = cursor.getInt(cursor.getColumnIndex("RoleID"));
+            @SuppressLint("Range") int status = cursor.getInt(cursor.getColumnIndex("Status"));
+
+            account = new Account(accountID, name, email, phone, username_db, "", roleID, status);
+        }
+
+
+        cursor.close();
+        db.close();
+        return account;
+    }
+
     public Account GetUsernameExisted(String username){
         SQLiteDatabase db = openHelper.getReadableDatabase();
         Account account = new Account();

@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/cartScreen"
+    tools:context=".CartActivity">
 
     <ScrollView
         android:layout_width="409dp"
@@ -63,7 +65,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="140dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/grey_background"
             android:padding="12dp">
@@ -90,13 +92,14 @@
 
             <TextView
                 android:id="@+id/totalPrice"
+                style="@style/textStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:text="Subtotal $...."
-                style="@style/textStyle"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/textView1"/>
+                app:layout_constraintHorizontal_bias="0.9"
+                app:layout_constraintStart_toEndOf="@+id/textView1"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/totalShip"
@@ -112,11 +115,12 @@
                 android:id="@+id/view2"
                 android:layout_width="wrap_content"
                 android:layout_height="1dp"
+                android:layout_marginTop="12dp"
                 android:background="@color/black"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:layout_editor_absoluteY="63dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="textView2" />
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
             <TextView
                 android:id="@+id/textView6"
@@ -133,14 +137,16 @@
 
             <TextView
                 android:id="@+id/total"
+                style="@style/textStyleBold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:text="300.000 VNĐ + Total price"
-                style="@style/textStyleBold"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="@id/textView6"
-                app:layout_constraintTop_toTopOf="@id/textView6"/>
+                app:layout_constraintHorizontal_bias="0.959"
+                app:layout_constraintStart_toEndOf="@+id/textView6"
+                app:layout_constraintTop_toTopOf="@id/view2"
+                app:layout_constraintVertical_bias="0.707" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -161,7 +167,8 @@
                 android:layout_marginTop="4dp"
                 android:text="Name "
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/tl_phone"/>
 
             <TextView
                 android:id="@+id/address"
@@ -173,15 +180,17 @@
                 app:layout_constraintStart_toStartOf="@id/tl_phone"
                 app:layout_constraintTop_toBottomOf="@id/tl_phone"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/txt_addresss"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Address"
                 style="@style/textStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                android:hint="Address"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/address"/>
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/address" />
 
             <TextView
                 android:id="@+id/tl_phone"
@@ -189,31 +198,33 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="10dp"
                 android:text="Phone"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tl_name" />
+                app:layout_constraintTop_toBottomOf="@id/tl_name"
+                app:layout_constraintBottom_toTopOf="@+id/address"/>
 
 
             <TextView
                 android:id="@+id/txt_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:text="Subtotal $...."
                 style="@style/textStyle"
+                app:layout_constraintHorizontal_bias="0.9"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tl_name"/>
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tl_name"/>
 
             <TextView
                 android:id="@+id/txt_phone"
                 style="@style/textStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:text="Phone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.92"
+                android:layout_marginTop="14dp"
+                app:layout_constraintEnd_toEndOf="@id/txt_name"
+                app:layout_constraintHorizontal_bias="0.9"
                 app:layout_constraintStart_toEndOf="@+id/tl_phone"
                 app:layout_constraintTop_toBottomOf="@id/txt_name" />
 

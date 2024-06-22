@@ -4,12 +4,12 @@ public class Product {
     public int ProductID;
     public String Name;
     public double Price;
-    public String Image;
+    public byte[] Image;
     public String Description;
     public int TypeID;
     public int Status;
 
-    public Product(int productID, String name, double price, String image, String description, int typeID, int status) {
+    public Product(int productID, String name, double price, byte[] image, String description, int typeID, int status) {
         ProductID = productID;
         Name = name;
         Price = price;
@@ -46,11 +46,11 @@ public class Product {
         Price = price;
     }
 
-    public String getImage() {
+    public byte[] getImage() {
         return Image;
     }
 
-    public void setImage(String image) {
+    public void setImage(byte[] image) {
         Image = image;
     }
 

@@ -39,7 +39,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "ProductID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "Name TEXT, " +
                 "Price REAL," +
-                "Image TEXT," +
+                "Image BLOB," +
                 "Description TEXT," +
                 "TypeID INTEGER," +
                 "Status INTEGER," +

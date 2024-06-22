@@ -36,7 +36,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="56dp"
@@ -50,8 +50,8 @@
 
             <ImageView
                 android:id="@+id/notification"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -65,9 +65,10 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 app:srcCompat="@mipmap/cart"
-                tools:layout_editor_absoluteX="240dp"
-                tools:layout_editor_absoluteY="16dp"
-                tools:ignore="MissingConstraints" />
+                android:layout_marginEnd="20dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/notification" />
 
             <ImageView
                 android:id="@+id/profile"
@@ -76,9 +77,12 @@
                 app:srcCompat="@mipmap/profile"
                 tools:layout_editor_absoluteX="-6dp"
                 tools:layout_editor_absoluteY="5dp"
-                tools:ignore="MissingConstraints" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
 
             <ImageView
+                android:id="@+id/ic_notification"
                 android:layout_width="25dp"
                 android:layout_height="30dp"
                 android:layout_marginBottom="28dp"
@@ -92,9 +96,10 @@
                 android:text="1"
                 android:textColor="@color/white"
                 android:textSize="12sp"
-                tools:layout_editor_absoluteX="275dp"
-                tools:layout_editor_absoluteY="17dp"
-                tools:ignore="MissingConstraints" />
+                app:layout_constraintStart_toStartOf="@+id/ic_notification"
+                app:layout_constraintEnd_toEndOf="@+id/ic_notification"
+                app:layout_constraintTop_toTopOf="@+id/ic_notification"
+                app:layout_constraintBottom_toBottomOf="@+id/ic_notification"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -152,6 +157,8 @@
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     app:srcCompat="@drawable/logo"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     tools:layout_editor_absoluteX="16dp"
                     tools:layout_editor_absoluteY="16dp"
                     tools:ignore="MissingConstraints" />
@@ -166,6 +173,9 @@
                 android:text="Buy now"
                 tools:layout_editor_absoluteX="156dp"
                 tools:layout_editor_absoluteY="131dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 tools:ignore="MissingConstraints" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -206,7 +216,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/Running_shoe_icon" />
+                        app:srcCompat="@drawable/shoe_icon" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
