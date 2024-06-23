@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -32,8 +33,8 @@ public class HomeActivity extends AppCompatActivity {
     private ProductAction productAction;
     private ProductAdapter productAdapter;
     private int accountIDLogin;
-    private ImageView cartView ;
-    private ImageView profileView;
+    private ImageView cartView, profileView ;
+    private LinearLayout profileScreen, cartScreen, mapScreen, orderScreen, shoeCate, shortCate, tshirtCate, shirtCate,jacketCate;
     private Account account;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,15 @@ public class HomeActivity extends AppCompatActivity {
         profileView = findViewById(R.id.profile);
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        profileScreen = findViewById(R.id.profileIconScreen);
+        cartScreen = findViewById(R.id.cartIconScreen);
+        orderScreen = findViewById(R.id.orderIconScreen);
+        mapScreen = findViewById(R.id.mapIconScreen);
+        shoeCate = findViewById(R.id.cate_shoe);
+        shirtCate = findViewById(R.id.cate_shirt);
+        shortCate = findViewById(R.id.cate_short);
+        tshirtCate = findViewById(R.id.cate_tshirt);
+        jacketCate = findViewById(R.id.cate_jacket);
 
         productAdapter = new ProductAdapter(this, products);
         recyclerView.setAdapter(productAdapter);
@@ -74,6 +84,75 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        cartScreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, CartActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        orderScreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this,OrderActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        profileScreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        shoeCate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, ProductCategoryActivity.class);
+                intent.putExtra("categoryID", 1);
+                startActivity(intent);
+            }
+        });
+
+        tshirtCate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, ProductCategoryActivity.class);
+                intent.putExtra("categoryID", 2);
+                startActivity(intent);
+            }
+        });
+
+        shortCate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, ProductCategoryActivity.class);
+                intent.putExtra("categoryID", 3);
+                startActivity(intent);
+            }
+        });
+
+        shirtCate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, ProductCategoryActivity.class);
+                intent.putExtra("categoryID", 4);
+                startActivity(intent);
+            }
+        });
+
+        jacketCate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, ProductCategoryActivity.class);
+                intent.putExtra("categoryID", 5);
                 startActivity(intent);
             }
         });

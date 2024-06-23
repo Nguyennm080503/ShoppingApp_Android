@@ -8,15 +8,17 @@ public class Cart {
     public String OrderDate;
     public double Total;
     public String Address;
+    public int Status;
 
     public List<CartDetail> CartDetail;
 
-    public Cart(int cartID, int accountID, String orderDate, double total, String address) {
+    public Cart(int cartID, int accountID, String orderDate, double total, String address, int status) {
         CartID = cartID;
         AccountID = accountID;
         OrderDate = orderDate;
         Total = total;
         Address = address;
+        Status = status;
     }
 
     public Cart() {
@@ -28,6 +30,14 @@ public class Cart {
 
     public void setCartDetail(List<com.example.prm_shoppingproject.Model.CartDetail> cartDetail) {
         CartDetail = cartDetail;
+    }
+
+    public int getStatus() {
+        return Status;
+    }
+
+    public void setStatus(int status) {
+        Status = status;
     }
 
     public int getCartID() {

@@ -44,7 +44,7 @@ public class CartAction {
         return database;
     }
 
-    public void addCart(int accountID, double total, String address) {
+    public void addCart(int accountID, double total, String address, int status) {
         Date now = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String formattedDate = dateFormat.format(now);
@@ -55,6 +55,7 @@ public class CartAction {
         values.put("OrderDate", formattedDate);
         values.put("Total", total);
         values.put("Address", address);
+        values.put("Status", status);
         db.insert("Cart", null, values);
         db.close();
     }
@@ -71,8 +72,9 @@ public class CartAction {
                 @SuppressLint("Range") String orderDate = cursor.getString(cursor.getColumnIndex("OrderDate"));
                 @SuppressLint("Range") double total = cursor.getDouble(cursor.getColumnIndex("Total"));
                 @SuppressLint("Range") String address = cursor.getString(cursor.getColumnIndex("Address"));
+                @SuppressLint("Range") int status  = cursor.getInt(cursor.getColumnIndex("Status"));
 
-                Cart cart = new Cart(cartID, accountdbID, orderDate, total, address);
+                Cart cart = new Cart(cartID, accountdbID, orderDate, total, address, status);
                 cartList.add(cart);
             } while (cursor.moveToNext());
         }
@@ -80,5 +82,26 @@ public class CartAction {
         cursor.close();
         db.close();
         return cartList;
+    }
+
+    public Cart getCartByOrderID(int orderID) {
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        Cart cart = new Cart();
+        Cursor cursor = db.rawQuery("SELECT * FROM Cart Where CartID = ?", new String[]{String.valueOf(orderID)});
+
+        if (cursor.moveToFirst()) {
+                @SuppressLint("Range") int cartID = cursor.getInt(cursor.getColumnIndex("CartID"));
+                @SuppressLint("Range") int accountdbID  = cursor.getInt(cursor.getColumnIndex("AccountID"));
+                @SuppressLint("Range") String orderDate = cursor.getString(cursor.getColumnIndex("OrderDate"));
+                @SuppressLint("Range") double total = cursor.getDouble(cursor.getColumnIndex("Total"));
+                @SuppressLint("Range") String address = cursor.getString(cursor.getColumnIndex("Address"));
+                @SuppressLint("Range") int status  = cursor.getInt(cursor.getColumnIndex("Status"));
+
+                cart = new Cart(cartID, accountdbID, orderDate, total, address, status);
+        }
+
+        cursor.close();
+        db.close();
+        return cart;
     }
 }

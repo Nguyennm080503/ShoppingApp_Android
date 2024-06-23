@@ -19,6 +19,9 @@
         <activity android:name=".ProfileActivity" />
         <activity android:name=".CartActivity" />
         <activity android:name=".ProductDetailActivity" />
+        <activity android:name=".ProductCategoryActivity"/>
+        <activity android:name=".OrderActivity"/>
+        <activity android:name=".OrderDetailActivity"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

@@ -51,6 +51,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "OrderDate TEXT," +
                 "Total REAL, " +
                 "Address TEXT," +
+                "Status INTEGER," +
                 "FOREIGN KEY(AccountID) REFERENCES Account(AccountID))");
 
         db.execSQL("CREATE TABLE CartDetail (" +

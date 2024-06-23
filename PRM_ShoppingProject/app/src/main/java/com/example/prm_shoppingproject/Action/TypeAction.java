@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.example.prm_shoppingproject.DatabaseHelper;
 import com.example.prm_shoppingproject.Model.Cart;
+import com.example.prm_shoppingproject.Model.Product;
+import com.example.prm_shoppingproject.Model.TypeProduct;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,6 +65,22 @@ public class TypeAction {
             db.insert("TypeProduct", null, values);
         }
         db.close();
+    }
+
+    public TypeProduct GetTypeProductByID(int categoryID){
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        TypeProduct type = new TypeProduct();
+        Cursor cursor = db.rawQuery("SELECT * FROM TypeProduct WHERE TypeID = ?", new String[]{String.valueOf(categoryID)});
+
+        if (cursor.moveToFirst()) {
+            @SuppressLint("Range") int typeID = cursor.getInt(cursor.getColumnIndex("TypeID"));
+            @SuppressLint("Range") String typeName  = cursor.getString(cursor.getColumnIndex("TypeName"));
+
+            type = new TypeProduct(typeID, typeName);
+        }
+        cursor.close();
+        db.close();
+        return type;
     }
 
 }
