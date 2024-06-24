@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,22 +19,22 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.prm_shoppingproject.Action.AccountAction;
 import com.example.prm_shoppingproject.Model.Account;
 
-public class ProfileActivity extends AppCompatActivity {
+public class AccountDetailActivity extends AppCompatActivity {
     private AccountAction accountAction;
     private Account account;
-    private Button btn_logout;
+    private Button btnChangeStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_profile);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.profileScreen), (v, insets) -> {
+        setContentView(R.layout.activity_account_detail);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.account_detail_screen), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        accountAction = new AccountAction(ProfileActivity.this);
+        accountAction = new AccountAction(AccountDetailActivity.this);
 
         TextView name = findViewById(R.id.name);
         TextView phone = findViewById(R.id.phone);
@@ -41,10 +42,9 @@ public class ProfileActivity extends AppCompatActivity {
         TextView username = findViewById(R.id.username);
         TextView status = findViewById(R.id.status);
         ImageView backHome = findViewById(R.id.back_home);
-        btn_logout = findViewById(R.id.btnLogout);
-        SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
-        int accountIDLogin = sharedPreferences.getInt("accountID", -1);
-        account = accountAction.GetAccountByID(accountIDLogin);
+        btnChangeStatus = findViewById(R.id.btnChangeStatus);
+        int accountID = getIntent().getIntExtra("accountID", -1);
+        account = accountAction.GetAccountByID(accountID);
 
         name.setText(account.Name);
         phone.setText(account.Phone);
@@ -55,19 +55,26 @@ public class ProfileActivity extends AppCompatActivity {
         backHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
+                Intent intent = new Intent(AccountDetailActivity.this, AccountManagementActivity.class);
                 startActivity(intent);
             }
         });
 
-        btn_logout.setOnClickListener(new View.OnClickListener() {
+        btnChangeStatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.clear();
-                editor.apply();
-                Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
-                startActivity(intent);
+                Account account_change = accountAction.GetAccountByID(accountID);
+                int status_change = -1;
+                if (account_change.Status == 0) {
+                    status_change = 1;
+                    accountAction.updateAccountStatus(accountID, status_change);
+                } else if (account_change.Status == 1) {
+                    status_change = 0;
+                    accountAction.updateAccountStatus(accountID, status_change);
+                }
+                String message = "Status changed to " + (status_change == 1 ? "Block" : "Active");
+                Toast.makeText(AccountDetailActivity.this, message, Toast.LENGTH_SHORT).show();
+                status.setText(status_change == 1 ? "Block" : "Active");
             }
         });
     }

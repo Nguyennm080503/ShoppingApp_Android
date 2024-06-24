@@ -30,6 +30,7 @@ public class OrderActivity extends AppCompatActivity {
     private CartAction cartAction;
     private OrderAdapter orderAdapter;
     private ImageView backHome;
+    private TextView empty;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +41,6 @@ public class OrderActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        Intent intent = getIntent();
         cartAction = new CartAction(OrderActivity.this);
         SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
         int accountIDLogin = sharedPreferences.getInt("accountID", -1);
@@ -48,7 +48,15 @@ public class OrderActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.orderView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         backHome = findViewById(R.id.back_home);
+        empty = findViewById(R.id.emptyCartMessage);
 
+        if (carts.isEmpty()) {
+            empty.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            empty.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
         orderAdapter = new OrderAdapter(this, carts);
         recyclerView.setAdapter(orderAdapter);
 

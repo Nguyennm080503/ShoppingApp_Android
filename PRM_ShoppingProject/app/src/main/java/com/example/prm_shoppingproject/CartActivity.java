@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -35,8 +36,8 @@ public class CartActivity extends AppCompatActivity {
     private ProductAction productAction;
     private AccountAction accountAction;
     private List<CartProduct> productCartList;
-    private TextView totalPrice, total, name, phone;
-
+    private LinearLayout cartFull;
+    private TextView totalPrice, total, name, phone, emptyCartMessage;
     private ImageView backHome;
 
     @SuppressLint("DefaultLocale")
@@ -57,6 +58,9 @@ public class CartActivity extends AppCompatActivity {
         backHome = findViewById(R.id.back_home);
         name = findViewById(R.id.txt_name);
         phone = findViewById(R.id.txt_phone);
+        cartFull = findViewById(R.id.cartFull);
+        emptyCartMessage = findViewById(R.id.emptyCartMessage);
+
         SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
         int accountIDLogin = sharedPreferences.getInt("accountID", -1);
         accountAction = new AccountAction(CartActivity.this);
@@ -66,23 +70,30 @@ public class CartActivity extends AppCompatActivity {
 
         productCartList = new ArrayList<>();
         ArrayList<CartItem> cartItems = getCartItems();
-        for (CartItem item: cartItems) {
-            CartProduct cartProduct = new CartProduct();
-            Product product = productAction.GetProductByID(item.ProductID);
-            cartProduct.Price = product.Price * item.Quantity;
-            cartProduct.Image = product.Image;
-            cartProduct.ProductName = product.Name;
-            cartProduct.Quantity = item.Quantity;
-            cartProduct.ProductID = item.ProductID;
-            productCartList.add(cartProduct);
-        }
+        if (cartItems.isEmpty()) {
+            emptyCartMessage.setVisibility(View.VISIBLE);
+            cartFull.setVisibility(View.GONE);
+        } else {
+            emptyCartMessage.setVisibility(View.GONE);
+            cartFull.setVisibility(View.VISIBLE);
+            for (CartItem item : cartItems) {
+                CartProduct cartProduct = new CartProduct();
+                Product product = productAction.GetProductByID(item.ProductID);
+                cartProduct.Price = product.Price * item.Quantity;
+                cartProduct.Image = product.Image;
+                cartProduct.ProductName = product.Name;
+                cartProduct.Quantity = item.Quantity;
+                cartProduct.ProductID = item.ProductID;
+                productCartList.add(cartProduct);
+            }
 
-        cartAdapter = new CartAdapter(this, productCartList);
-        recyclerView.setAdapter(cartAdapter);
-        totalPrice.setText(String.format("$%.2f", cartAdapter.calculateTotalPrice()));
-        total.setText(String.format("$%.2f", (cartAdapter.calculateTotalPrice() + 2)));
-        name.setText(account.Name);
-        phone.setText(account.Phone);
+            cartAdapter = new CartAdapter(this, productCartList);
+            recyclerView.setAdapter(cartAdapter);
+            totalPrice.setText(String.format("$%.2f", cartAdapter.calculateTotalPrice()));
+            total.setText(String.format("$%.2f", (cartAdapter.calculateTotalPrice() + 2)));
+            name.setText(account.Name);
+            phone.setText(account.Phone);
+        }
 
         backHome.setOnClickListener(new View.OnClickListener() {
             @Override

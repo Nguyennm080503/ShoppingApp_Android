@@ -22,6 +22,9 @@
         <activity android:name=".ProductCategoryActivity"/>
         <activity android:name=".OrderActivity"/>
         <activity android:name=".OrderDetailActivity"/>
+        <activity android:name=".AccountManagementActivity"/>
+        <activity android:name=".AccountDetailActivity"/>
+        <activity android:name=".AdminDashboardActivity"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

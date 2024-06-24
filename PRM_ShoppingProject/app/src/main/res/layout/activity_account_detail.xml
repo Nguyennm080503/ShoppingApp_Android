@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/profileScreen"
-    tools:context=".ProfileActivity">
+    android:id="@+id/account_detail_screen"
+    tools:context=".AccountDetailActivity">
 
     <ScrollView
         android:layout_width="409dp"
@@ -29,9 +29,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:srcCompat="@android:drawable/ic_menu_revert"
-                    tools:ignore="MissingConstraints"
                     tools:layout_editor_absoluteX="16dp"
-                    tools:layout_editor_absoluteY="14dp" />
+                    tools:layout_editor_absoluteY="14dp"
+                    tools:ignore="MissingConstraints" />
 
                 <View
                     android:id="@+id/view"
@@ -40,41 +40,41 @@
                     android:layout_margin="16dp"
                     android:layout_marginTop="16dp"
                     android:background="@drawable/grey_background"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/back_home"
                     tools:ignore="MissingConstraints"
-                    tools:layout_editor_absoluteX="13dp" />
+                    tools:layout_editor_absoluteX="13dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
 
                 <ImageView
                     android:id="@+id/image_product"
                     android:layout_width="wrap_content"
                     android:layout_height="160dp"
-                    app:layout_constraintBottom_toBottomOf="@id/view"
-                    app:layout_constraintEnd_toEndOf="@id/view"
-                    app:layout_constraintStart_toStartOf="@id/view"
                     app:layout_constraintTop_toTopOf="@+id/view"
+                    app:layout_constraintStart_toStartOf="@id/view"
+                    app:layout_constraintEnd_toEndOf="@id/view"
+                    app:layout_constraintBottom_toBottomOf="@id/view"
                     app:srcCompat="@drawable/account_icon"
                     tools:layout_editor_absoluteX="34dp" />
 
                 <LinearLayout
-                    android:id="@+id/area_name"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="50dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginEnd="50dp"
                     android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/view"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/view">
+                    android:layout_marginStart="50dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="20dp"
+                    android:id="@+id/area_name">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:layout_weight="1"
-                        android:text="Name "
-                        android:textStyle="bold" />
+                        android:text="Name " />
 
                     <TextView
                         android:id="@+id/name"
@@ -86,23 +86,23 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/area_phone"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="50dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="50dp"
                     android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/area_name"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/area_name">
+                    android:layout_marginStart="50dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/area_phone">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Phone "
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:text="Phone " />
 
                     <TextView
                         android:id="@+id/phone"
@@ -114,23 +114,23 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/area_email"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="50dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="50dp"
                     android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/area_phone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/area_phone">
+                    android:layout_marginStart="50dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/area_email">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Email "
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:text="Email " />
 
                     <TextView
                         android:id="@+id/email"
@@ -142,23 +142,23 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/area_username"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="50dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="50dp"
                     android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/area_email"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/area_email">
+                    android:layout_marginStart="50dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/area_username">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Username "
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:text="Username " />
 
                     <TextView
                         android:id="@+id/username"
@@ -170,23 +170,23 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/area_status"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="50dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="50dp"
                     android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/area_username"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/area_username">
+                    android:layout_marginStart="50dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/area_status">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Status "
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:text="Status " />
 
                     <TextView
                         android:id="@+id/status"
@@ -197,20 +197,18 @@
 
                 </LinearLayout>
 
+
                 <Button
-                    android:id="@+id/btnLogout"
+                    android:id="@+id/btnChangeStatus"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="100dp"
-                    android:layout_marginEnd="125dp"
-                    android:layout_marginStart="125dp"
-                    android:text="Logout"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_margin="100dp"
+                    android:layout_marginEnd="140dp"
+                    android:text="Change Status"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/area_status"
-                    app:layout_constraintVertical_bias="1.0" />
+                    app:layout_constraintTop_toBottomOf="@+id/area_status" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 

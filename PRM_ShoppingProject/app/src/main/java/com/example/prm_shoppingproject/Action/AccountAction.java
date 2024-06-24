@@ -8,6 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.example.prm_shoppingproject.DatabaseHelper;
 import com.example.prm_shoppingproject.Model.Account;
+import com.example.prm_shoppingproject.Model.Product;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AccountAction {
     private DatabaseHelper openHelper;
@@ -53,6 +57,18 @@ public class AccountAction {
         db.close();
     }
 
+    public void updateAccountStatus(int accountId, int newStatus) {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("Status", newStatus);
+
+        db.update("Account", values, "AccountID = ?", new String[]{String.valueOf(accountId)});
+
+        db.close();
+    }
+
+
     public void AddAdminAccount(){
         Account account = GetAccountIDLogin("admin", "123456");
         if(account.Username == null){
@@ -93,6 +109,31 @@ public class AccountAction {
         return account;
     }
 
+    public List<Account> getAllAccount() {
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        List<Account> accountList = new ArrayList<>();
+        Cursor cursor = db.rawQuery("SELECT * FROM Account Where RoleID = 1", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                @SuppressLint("Range") int accountID = cursor.getInt(cursor.getColumnIndex("AccountID"));
+                @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex("Name"));
+                @SuppressLint("Range") String email = cursor.getString(cursor.getColumnIndex("Email"));
+                @SuppressLint("Range") String phone = cursor.getString(cursor.getColumnIndex("Phone"));
+                @SuppressLint("Range") String username_db = cursor.getString(cursor.getColumnIndex("Username"));
+                @SuppressLint("Range") int roleID = cursor.getInt(cursor.getColumnIndex("RoleID"));
+                @SuppressLint("Range") int status = cursor.getInt(cursor.getColumnIndex("Status"));
+
+                Account account = new Account(accountID, name, email, phone, username_db, "", roleID, status);
+                accountList.add(account);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return accountList;
+    }
+
     public Account GetAccountByID(int accountId){
         SQLiteDatabase db = openHelper.getReadableDatabase();
         Account account = new Account();
@@ -129,8 +170,11 @@ public class AccountAction {
             @SuppressLint("Range") String username_db = cursor.getString(cursor.getColumnIndex("UserName"));
             @SuppressLint("Range") int roleID = cursor.getInt(cursor.getColumnIndex("RoleID"));
             @SuppressLint("Range") int status = cursor.getInt(cursor.getColumnIndex("Status"));
-
-            account = new Account(accountID, name, email, phone, username_db, "", roleID, status);
+            if(accountID == 0){
+                account = null;
+            }else{
+                account = new Account(accountID, name, email, phone, username_db, "", roleID, status);
+            }
         }
 
 

@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     else if(account.RoleID == 0 && account.Status == 0){
                         Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                        Intent intent = new Intent(MainActivity.this, AdminDashboardActivity.class);
                         editor.putInt("accountID", account.AccountID);
                         editor.apply();
                         startActivity(intent);

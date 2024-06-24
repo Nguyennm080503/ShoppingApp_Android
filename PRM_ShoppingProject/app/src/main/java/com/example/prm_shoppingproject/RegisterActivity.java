@@ -47,8 +47,9 @@ public class RegisterActivity extends AppCompatActivity {
                 if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                     Toast.makeText(RegisterActivity.this, "Please fill in all fields!", Toast.LENGTH_SHORT).show();
                 }
-                else if(account != null){
+                else if(account == null){
                     Toast.makeText(RegisterActivity.this, "Userame is existed!", Toast.LENGTH_SHORT).show();
+                    performRegistration(name, email, phone, username, password);
                 }
                 else if (!password.equals(confirmPassword)) {
                     Toast.makeText(RegisterActivity.this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
