@@ -42,7 +42,7 @@ public class ProductAction {
         return database;
     }
 
-    public void addProduct(String name, double price, String image, String description, int typeID) {
+    public void addProduct(String name, double price, byte[] image, String description, int typeID) {
         SQLiteDatabase db = openHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("Name", name);
