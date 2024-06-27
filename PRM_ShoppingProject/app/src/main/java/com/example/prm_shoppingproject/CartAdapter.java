@@ -73,6 +73,10 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         });
     }
 
+    public List<CartProduct> getCartProducts() {
+        return productCartList;
+    }
+
     public double calculateTotalPrice() {
         double totalPrice = 0.0;
         for (CartProduct cartProduct : productCartList) {
