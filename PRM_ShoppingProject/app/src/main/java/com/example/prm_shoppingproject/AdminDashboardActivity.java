@@ -45,6 +45,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
             }
         });
 
+        product_management.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AdminDashboardActivity.this, ProductManagementActivity.class);
+                startActivity(intent);
+            }
+        });
+
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
