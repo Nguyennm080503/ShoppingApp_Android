@@ -104,4 +104,25 @@ public class CartAction {
         db.close();
         return cart;
     }
+
+    public Cart getCartNewOrderID() {
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        Cart cart = new Cart();
+        Cursor cursor = db.rawQuery("SELECT * FROM Cart ORDER BY CartID DESC ", null);
+
+        if (cursor.moveToFirst()) {
+            @SuppressLint("Range") int cartID = cursor.getInt(cursor.getColumnIndex("CartID"));
+            @SuppressLint("Range") int accountdbID  = cursor.getInt(cursor.getColumnIndex("AccountID"));
+            @SuppressLint("Range") String orderDate = cursor.getString(cursor.getColumnIndex("OrderDate"));
+            @SuppressLint("Range") double total = cursor.getDouble(cursor.getColumnIndex("Total"));
+            @SuppressLint("Range") String address = cursor.getString(cursor.getColumnIndex("Address"));
+            @SuppressLint("Range") int status  = cursor.getInt(cursor.getColumnIndex("Status"));
+
+            cart = new Cart(cartID, accountdbID, orderDate, total, address, status);
+        }
+
+        cursor.close();
+        db.close();
+        return cart;
+    }
 }
