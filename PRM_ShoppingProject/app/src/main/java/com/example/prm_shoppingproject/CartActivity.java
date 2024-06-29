@@ -44,13 +44,13 @@ import com.stripe.android.paymentsheet.PaymentSheetResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-public class CartActivity extends AppCompatActivity {
+public class CartActivity extends AppCompatActivity implements CartAdapter.OnQuantityChangeListener, CartAdapter.OnCartEmptyListener{
     private RecyclerView recyclerView;
     private CartAdapter cartAdapter;
     private ProductAction productAction;
@@ -63,19 +63,19 @@ public class CartActivity extends AppCompatActivity {
     private ImageView backHome;
     private EditText address;
     private AppCompatButton checkout;
-    String Apikey = "pk_test_51PWSgUD9V5NbhcqDuqScwxUf2suaAeJyq5rwTNuX6aLyItUgQewTpxCv6SPaWoAUre5UytqnDAAyLr6kz1wFGnjE00WFU1dNuy";
-    String ApiSercret = "sk_test_51PWSgUD9V5NbhcqDsI3wIY0o5CdFsN0J4lWd1x7zvIvxAnc8ojBiiB9S87CdvNNh5LSyNZLwhBzsmtnjQEMmtsNV00InidgtcJ";
-    PaymentSheet paymentSheet;
-    String accountID;
-    String EphericalKey;
-    String ClientKey;
+    private String accountID;
+    private String EphericalKey;
+    private String ClientKey;
 
-    @SuppressLint("DefaultLocale")
+    private final String Apikey = "pk_test_51PWSgUD9V5NbhcqDuqScwxUf2suaAeJyq5rwTNuX6aLyItUgQewTpxCv6SPaWoAUre5UytqnDAAyLr6kz1wFGnjE00WFU1dNuy";
+    private final String ApiSercret = "sk_test_51PWSgUD9V5NbhcqDsI3wIY0o5CdFsN0J4lWd1x7zvIvxAnc8ojBiiB9S87CdvNNh5LSyNZLwhBzsmtnjQEMmtsNV00InidgtcJ";
+    private PaymentSheet paymentSheet;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_cart);
+        EdgeToEdge.enable(this);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.cartScreen), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -91,15 +91,11 @@ public class CartActivity extends AppCompatActivity {
         cartFull = findViewById(R.id.cartFull);
         emptyCartMessage = findViewById(R.id.emptyCartMessage);
         checkout = findViewById(R.id.btn_checkout);
-        address = findViewById(R.id.txt_addresss);
         cartAction = new CartAction(CartActivity.this);
         cartDetailAction = new CartDetailAction(CartActivity.this);
-        SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
-        int accountIDLogin = sharedPreferences.getInt("accountID", -1);
-        accountAction = new AccountAction(CartActivity.this);
-        Account account = accountAction.GetAccountByID(accountIDLogin);
         productAction = new ProductAction(CartActivity.this);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        accountAction = new AccountAction(CartActivity.this);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 1));
 
         productCartList = new ArrayList<>();
         PaymentConfiguration.init(this, Apikey);
@@ -107,40 +103,11 @@ public class CartActivity extends AppCompatActivity {
             onPaymentResult(paymentSheetResult);
         });
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                "https://api.stripe.com/v1/customers",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String s) {
+        SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
+        int accountIDLogin = sharedPreferences.getInt("accountID", -1);
+        Account account = accountAction.GetAccountByID(accountIDLogin);
 
-                        try {
-                            JSONObject object = new JSONObject(s);
-                            accountID = object.getString("id");
-
-                            getEnphericalKey(accountID);
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-
-                    }
-                })
-        {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError{
-                Map<String, String> header = new HashMap<>();
-                header.put("Authorization", "Bearer" + ApiSercret);
-                return header;
-            }
-        };
-
-        RequestQueue requestQueue = Volley.newRequestQueue(CartActivity.this);
-        requestQueue.add(stringRequest);
-        List<CartDetail> cartItems = checkCartPending(cartAction, cartDetailAction, accountIDLogin);
+        List<CartDetail> cartItems = checkCartPending(accountIDLogin);
         Cart cartOrder = new Cart();
         if (cartItems.isEmpty()) {
             emptyCartMessage.setVisibility(View.VISIBLE);
@@ -159,7 +126,7 @@ public class CartActivity extends AppCompatActivity {
                 productCartList.add(cartProduct);
             }
 
-            cartAdapter = new CartAdapter(this, productCartList);
+            cartAdapter = new CartAdapter(this, productCartList, this, this);
             recyclerView.setAdapter(cartAdapter);
             cartOrder = cartAction.getCartPendingByOrderID(accountIDLogin);
             totalPrice.setText(String.format("$%.2f", cartOrder.Total - 2));
@@ -168,25 +135,156 @@ public class CartActivity extends AppCompatActivity {
             phone.setText(account.Phone);
         }
 
-        backHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(CartActivity.this, HomeActivity.class);
-                startActivity(intent);
+        backHome.setOnClickListener(v -> {
+            Intent intent = new Intent(CartActivity.this, HomeActivity.class);
+            startActivity(intent);
+        });
+
+        checkout.setOnClickListener(v -> {
+            address = findViewById(R.id.txt_addresss);
+            TextView cartTotal = findViewById(R.id.total);
+            String txt_address = address.getText().toString().trim();
+            if (txt_address.isEmpty()) {
+                Toast.makeText(CartActivity.this, "Please enter address to order!", Toast.LENGTH_SHORT).show();
+            } else {
+                checkoutClicked(txt_address, Double.parseDouble(cartTotal.toString()));
             }
         });
-        Cart finalCartOrder = cartOrder;
-        checkout.setOnClickListener(new View.OnClickListener() {
+    }
+
+    private void checkoutClicked(String txt_address, double amount) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                "https://api.stripe.com/v1/customers",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String s) {
+                        try {
+                            JSONObject object = new JSONObject(s);
+                            accountID = object.getString("id");
+                            getEnphericalKey(accountID, amount);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        volleyError.printStackTrace();
+                    }
+                }) {
             @Override
-            public void onClick(View v) {
-                if (address == null){
-                    Toast.makeText(CartActivity.this, "Please enter address to order!", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    PaymentFlow();
-                }
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> header = new HashMap<>();
+                header.put("Authorization", "Bearer " + ApiSercret);
+                return header;
             }
-        });
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(CartActivity.this);
+        requestQueue.add(stringRequest);
+    }
+
+    private void getEnphericalKey(String accountID, double amount) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                "https://api.stripe.com/v1/ephemeral_keys",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String s) {
+                        try {
+                            JSONObject object = new JSONObject(s);
+                            EphericalKey = object.getString("id");
+                            getClientSecret(accountID, EphericalKey, amount);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        volleyError.printStackTrace();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> header = new HashMap<>();
+                header.put("Authorization", "Bearer " + ApiSercret);
+                header.put("Stripe-Version", "2022-11-15"); // Ensure the version matches the required one
+                return header;
+            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                String param = "customer=" + accountID;
+                return param.getBytes(StandardCharsets.UTF_8);
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/x-www-form-urlencoded; charset=UTF-8";
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(CartActivity.this);
+        requestQueue.add(stringRequest);
+    }
+
+
+    private void getClientSecret(String accountID, String ephericalKey, double amount) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                "https://api.stripe.com/v1/payment_intents",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String s) {
+                        try {
+                            JSONObject object = new JSONObject(s);
+                            ClientKey = object.getString("client_secret");
+                            PaymentFlow(); // Call PaymentFlow after obtaining ClientKey
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        volleyError.printStackTrace();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> header = new HashMap<>();
+                header.put("Authorization", "Bearer " + ApiSercret);
+                return header;
+            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                String param = "customer=" + accountID + "&amount="+ amount + "&currency=usd&automatic_payment_methods[enabled]=true";
+                return param.getBytes(StandardCharsets.UTF_8);
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/x-www-form-urlencoded; charset=UTF-8";
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(CartActivity.this);
+        requestQueue.add(stringRequest);
+    }
+
+
+    private void PaymentFlow() {
+        if (ClientKey != null && accountID != null && EphericalKey != null) {
+            paymentSheet.presentWithPaymentIntent(
+                    ClientKey, new PaymentSheet.Configuration("Shopping App",
+                            new PaymentSheet.CustomerConfiguration(accountID, EphericalKey))
+            );
+        } else {
+            Toast.makeText(this, "Unable to initiate payment. Please try again later.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void onPaymentResult(PaymentSheetResult paymentSheetResult) {
@@ -195,120 +293,36 @@ public class CartActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
         int accountIDLogin = sharedPreferences.getInt("accountID", -1);
         Cart cart = cartAction.getCartPendingByOrderID(accountIDLogin);
-        if(paymentSheetResult instanceof PaymentSheetResult.Completed){
+        if (paymentSheetResult instanceof PaymentSheetResult.Completed) {
             PaymentOrder(cart.CartID, txt_address, cartActionPayment, 1);
+            Intent intent = new Intent(CartActivity.this, HomeActivity.class);
             Toast.makeText(this, "Payment successfully!", Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
             PaymentOrder(cart.CartID, txt_address, cartActionPayment, 2);
             Toast.makeText(this, "Fail to paymet!", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void getEnphericalKey(String accountID) {
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                "https://api.stripe.com/v1/ephemeral_keys",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String s) {
-
-                        try {
-                            JSONObject object = new JSONObject(s);
-                            EphericalKey = object.getString("id");
-
-                            getClientSercet(accountID, EphericalKey);
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-
-                    }
-                })
-        {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError{
-                Map<String, String> header = new HashMap<>();
-                header.put("Authorization", "Bearer" + ApiSercret);
-                header.put("Stripe-Version", "2020-08-27");
-                return header;
-            }
-
-            @Override
-            public Map<String, String> getParams() throws AuthFailureError{
-                Map<String, String> param = new HashMap<>();
-                param.put("customer", accountID);
-                param.put("Stripe-Version", "2020-08-27");
-                return param;
-            }
-        };
-
-        RequestQueue requestQueue = Volley.newRequestQueue(CartActivity.this);
-        requestQueue.add(stringRequest);
-    }
-
-    private void getClientSercet(String accountID, String ephericalKey) {
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                "https://api.stripe.com/v1/payment_intents  ",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String s) {
-
-                        try {
-                            JSONObject object = new JSONObject(s);
-                            ClientKey = object.getString("client_secret");
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-
-                    }
-                })
-        {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError{
-                Map<String, String> header = new HashMap<>();
-                header.put("Authorization", "Bearer" + ApiSercret);
-                return header;
-            }
-
-            @Override
-            public Map<String, String> getParams() throws AuthFailureError{
-                Map<String, String> param = new HashMap<>();
-                param.put("customer", accountID);
-                param.put("amount", "10000");
-                param.put("currency", "usd");
-                param.put("automatic_payment_methodse[enabled]", "true");
-                return param;
-            }
-        };
-
-        RequestQueue requestQueue = Volley.newRequestQueue(CartActivity.this);
-        requestQueue.add(stringRequest);
-    }
-
-    private void PaymentFlow() {
-        paymentSheet.presentWithPaymentIntent(
-                ClientKey, new PaymentSheet.Configuration("Shopping App",
-                        new PaymentSheet.CustomerConfiguration(accountID, EphericalKey))
-        );
-    }
-
     private void PaymentOrder(int cartID, String address, CartAction cartAction, int status) {
         cartAction.updateStatusCart(cartID, address, status);
     }
-    private List<CartDetail> checkCartPending(CartAction cartAction, CartDetailAction cartDetailAction, int accountID) {
+
+    private List<CartDetail> checkCartPending(int accountID) {
         List<CartDetail> cartDetails = new ArrayList<>();
         Cart cart = cartAction.getCartPendingByOrderID(accountID);
-        if(cart != null){
+        if (cart != null) {
             cartDetails = cartDetailAction.getAllCartDetailByOrder(cart.CartID);
-            }
+        }
         return cartDetails;
+    }
+
+    public void onQuantityChanged(double totalPrice) {
+        this.totalPrice.setText(String.format("$%.2f", totalPrice));
+        this.total.setText(String.format("$%.2f", totalPrice + 2));
+    }
+
+    public void onCartEmpty() {
+        emptyCartMessage.setVisibility(View.VISIBLE);
+        cartFull.setVisibility(View.GONE);
     }
 }

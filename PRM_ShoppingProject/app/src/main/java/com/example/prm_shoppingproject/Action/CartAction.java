@@ -60,6 +60,14 @@ public class CartAction {
         db.close();
     }
 
+    public void deleteCart(int orderID) {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+
+        db.delete("Cart", "CartID = ? ", new String[]{String.valueOf(orderID)});
+
+        db.close();
+    }
+
     public List<Cart> getAllCartByAccount(int accountID) {
         SQLiteDatabase db = openHelper.getReadableDatabase();
         List<Cart> cartList = new ArrayList<>();

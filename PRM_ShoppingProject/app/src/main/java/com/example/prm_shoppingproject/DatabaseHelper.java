@@ -46,7 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY(TypeID) REFERENCES TypeProduct(TypeID))");
 
         db.execSQL("CREATE TABLE Cart (" +
-                "CardID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "CartID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "AccountID INTEGER, " +
                 "OrderDate TEXT," +
                 "Total REAL, " +

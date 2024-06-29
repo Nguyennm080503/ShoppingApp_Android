@@ -58,19 +58,38 @@ public class TypeAction {
 
     public void addTypeNameInit() {
         List<String> listTypeName = Arrays.asList("Shoe", "T-Shirt", "Short", "Shirt", "Jacket");
-        SQLiteDatabase db = openHelper.getWritableDatabase();
         for (String typename : listTypeName) {
-            ContentValues values = new ContentValues();
-            values.put("TypeName", typename);
-            db.insert("TypeProduct", null, values);
+            TypeProduct typeProduct = GetTypeProductByName(typename);
+            if (typeProduct.TypeName == null || typeProduct.TypeName.isEmpty()){
+                SQLiteDatabase db = openHelper.getWritableDatabase();
+                ContentValues values = new ContentValues();
+                values.put("TypeName", typename);
+                db.insert("TypeProduct", null, values);
+                db.close();
+            }
         }
-        db.close();
     }
 
     public TypeProduct GetTypeProductByID(int categoryID){
         SQLiteDatabase db = openHelper.getReadableDatabase();
         TypeProduct type = new TypeProduct();
         Cursor cursor = db.rawQuery("SELECT * FROM TypeProduct WHERE TypeID = ?", new String[]{String.valueOf(categoryID)});
+
+        if (cursor.moveToFirst()) {
+            @SuppressLint("Range") int typeID = cursor.getInt(cursor.getColumnIndex("TypeID"));
+            @SuppressLint("Range") String typeName  = cursor.getString(cursor.getColumnIndex("TypeName"));
+
+            type = new TypeProduct(typeID, typeName);
+        }
+        cursor.close();
+        db.close();
+        return type;
+    }
+
+    public TypeProduct GetTypeProductByName(String name){
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        TypeProduct type = new TypeProduct();
+        Cursor cursor = db.rawQuery("SELECT * FROM TypeProduct WHERE TypeName = ?", new String[]{name});
 
         if (cursor.moveToFirst()) {
             @SuppressLint("Range") int typeID = cursor.getInt(cursor.getColumnIndex("TypeID"));

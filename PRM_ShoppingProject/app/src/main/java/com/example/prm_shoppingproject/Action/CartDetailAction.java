@@ -100,10 +100,10 @@ public class CartDetailAction {
         return cartDetail;
     }
 
-    public CartDetail getCartDetailByProductIDPending(int productId) {
+    public CartDetail getCartDetailByProductIDPending(int productId, int cartID) {
         SQLiteDatabase db = openHelper.getReadableDatabase();
         CartDetail cartDetail = new CartDetail();
-        Cursor cursor = db.rawQuery("SELECT * FROM CartDetail Where Status = 0 And ProductID = ?", new String[]{String.valueOf(productId)});
+        Cursor cursor = db.rawQuery("SELECT * FROM CartDetail Where ProductID = ? And OrderID = ?", new String[]{String.valueOf(productId), String.valueOf(cartID)});
 
         if (cursor.moveToFirst()) {
             @SuppressLint("Range") int cartDetailID = cursor.getInt(cursor.getColumnIndex("CartDetailID"));
@@ -146,6 +146,26 @@ public class CartDetailAction {
             values.put("Quantity", quantity - 1);
             values.put("Total", total);
         }
+
+        db.update("CartDetail", values, "OrderID = ? And ProductID = ?", new String[]{String.valueOf(orderID), String.valueOf(productID)});
+
+        db.close();
+    }
+
+    public void deleteCartDetail(int productID, int orderID) {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+
+        db.delete("CartDetail", "OrderID = ? AND ProductID = ?", new String[]{String.valueOf(orderID), String.valueOf(productID)});
+
+        db.close();
+    }
+
+    public void updateQuantityReOrder(int productID, int orderID, int quantity, double total) {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("Quantity", quantity);
+        values.put("Total", total);
 
         db.update("CartDetail", values, "OrderID = ? And ProductID = ?", new String[]{String.valueOf(orderID), String.valueOf(productID)});
 

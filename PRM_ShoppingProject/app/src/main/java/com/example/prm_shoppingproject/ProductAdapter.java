@@ -21,6 +21,7 @@ import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
+import com.example.prm_shoppingproject.Model.CartProduct;
 import com.example.prm_shoppingproject.Model.Product;
 
 import java.util.ArrayList;
@@ -30,16 +31,23 @@ import java.util.Set;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
 
+    public interface OnNumberCartChangeListener {
+        void onNumberCartChanged(int numberItemInCart);
+    }
     private Context context;
     private List<Product> productList;
     private SharedPreferences sharedPreferences;
     private CartAction cartAction;
     private CartDetailAction cartDetailAction;
 
-    public ProductAdapter(Context context, List<Product> productList) {
+    private OnNumberCartChangeListener onNumberCartChangeListener;
+
+
+    public ProductAdapter(Context context, List<Product> productList, OnNumberCartChangeListener onNumberCartChangeListener) {
         this.context = context;
         this.productList = productList;
         this.sharedPreferences = context.getSharedPreferences("session", Context.MODE_PRIVATE);
+        this.onNumberCartChangeListener = onNumberCartChangeListener;
     }
 
     @NonNull
@@ -76,20 +84,23 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             public void onClick(View v) {
                 int productID = product.ProductID;
                 Cart cart = cartAction.getCartPendingByOrderID(accountIDLogin);
-                if(cart != null){
-                    CartDetail cartDetail = cartDetailAction.getCartDetailByProductIDPending(productID);
+                if(cart.CartID != 0){
+                    CartDetail cartDetail = cartDetailAction.getCartDetailByProductIDPending(productID, cart.CartID);
                     if (cartDetail != null){
                         cartDetailAction.updateQuantity(productID, 1, cartDetail.OrderID, cartDetail.Quantity,product.Price * (cartDetail.Quantity + 1));
                         calculateTotalPrice(cartAction, accountIDLogin, cartDetailAction, cartDetail.OrderID);
+                        notifyNumberCartChanged(cart.CartID);
                     }else{
                         Cart cartPending = cartAction.getCartPendingByOrderID(accountIDLogin);
                         cartDetailAction.addCartDetail(cartPending.CartID, productID, 1, product.Price * 1);
+                        notifyNumberCartChanged(cartPending.CartID);
                     }
                 }
                 else{
                     cartAction.addCart(accountIDLogin, (product.Price * 1) + 2 ,"", 0);
                     Cart cartPending = cartAction.getCartPendingByOrderID(accountIDLogin);
                     cartDetailAction.addCartDetail(cartPending.CartID, productID, 1, product.Price * 1);
+                    notifyNumberCartChanged(cartPending.CartID);
                 }
                 Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show();
             }
@@ -100,6 +111,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     @Override
     public int getItemCount() {
         return productList.size();
+    }
+
+    private void notifyNumberCartChanged(int cartID) {
+        int numberItemCart = 0;
+        numberItemCart = cartDetailAction.getAllCartDetailByOrder(cartID).size();
+        if (onNumberCartChangeListener != null) {
+            onNumberCartChangeListener.onNumberCartChanged(numberItemCart);
+        }
     }
 
     static class ProductViewHolder extends RecyclerView.ViewHolder {
