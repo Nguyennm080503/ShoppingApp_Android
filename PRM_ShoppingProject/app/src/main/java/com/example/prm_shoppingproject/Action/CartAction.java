@@ -63,7 +63,7 @@ public class CartAction {
     public List<Cart> getAllCartByAccount(int accountID) {
         SQLiteDatabase db = openHelper.getReadableDatabase();
         List<Cart> cartList = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT * FROM Cart Where AccountID = ?", new String[]{String.valueOf(accountID)});
+        Cursor cursor = db.rawQuery("SELECT * FROM Cart Where AccountID = ? AND Status != 0", new String[]{String.valueOf(accountID)});
 
         if (cursor.moveToFirst()) {
             do {
@@ -105,6 +105,27 @@ public class CartAction {
         return cart;
     }
 
+    public Cart getCartPendingByOrderID(int accountID) {
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        Cart cart = new Cart();
+        Cursor cursor = db.rawQuery("SELECT * FROM Cart Where AccountID = ? And Status = 0", new String[]{String.valueOf(accountID)});
+
+        if (cursor.moveToFirst()) {
+            @SuppressLint("Range") int cartID = cursor.getInt(cursor.getColumnIndex("CartID"));
+            @SuppressLint("Range") int accountdbID  = cursor.getInt(cursor.getColumnIndex("AccountID"));
+            @SuppressLint("Range") String orderDate = cursor.getString(cursor.getColumnIndex("OrderDate"));
+            @SuppressLint("Range") double total = cursor.getDouble(cursor.getColumnIndex("Total"));
+            @SuppressLint("Range") String address = cursor.getString(cursor.getColumnIndex("Address"));
+            @SuppressLint("Range") int status  = cursor.getInt(cursor.getColumnIndex("Status"));
+
+            cart = new Cart(cartID, accountdbID, orderDate, total, address, status);
+        }
+
+        cursor.close();
+        db.close();
+        return cart;
+    }
+
     public Cart getCartNewOrderID() {
         SQLiteDatabase db = openHelper.getReadableDatabase();
         Cart cart = new Cart();
@@ -124,5 +145,28 @@ public class CartAction {
         cursor.close();
         db.close();
         return cart;
+    }
+
+    public void updateTotalCart(int accountId, double total) {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("Total", total);
+
+        db.update("Cart", values, "AccountID = ? And Status = 0", new String[]{String.valueOf(accountId)});
+
+        db.close();
+    }
+
+    public void updateStatusCart(int cartID, String address, int status) {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("Status", status);
+        values.put("Address", address);
+
+        db.update("Cart", values, "CartID = ?", new String[]{String.valueOf(cartID)});
+
+        db.close();
     }
 }
