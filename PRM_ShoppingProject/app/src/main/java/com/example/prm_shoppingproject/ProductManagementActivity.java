@@ -18,7 +18,7 @@ import java.util.List;
 public class ProductManagementActivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewProducts;
-    private ProductAdapter productAdapter;
+    private ProductManagementAdapter productAdapter;
     private ProductAction productAction;
     private List<Product> productList;
     private ImageView backHome;
@@ -37,7 +37,7 @@ public class ProductManagementActivity extends AppCompatActivity {
         productList = productAction.getAllProducts();
 
 
-        productAdapter = new ProductAdapter(this, productList);
+        productAdapter = new ProductManagementAdapter(this, productList);
         recyclerViewProducts.setAdapter(productAdapter);
 
         addProduct.setOnClickListener(new View.OnClickListener() {

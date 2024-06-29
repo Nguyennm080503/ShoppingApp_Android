@@ -84,6 +84,7 @@ public class CreateProductionActivity extends AppCompatActivity {
         intent.setType("image/*");
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -123,6 +124,7 @@ public class CreateProductionActivity extends AppCompatActivity {
 
 
         Toast.makeText(this, "Product saved successfully", Toast.LENGTH_SHORT).show();
-        finish();
+        Intent intent = new Intent(CreateProductionActivity.this, ProductManagementActivity.class);
+        startActivity(intent);
     }
 }

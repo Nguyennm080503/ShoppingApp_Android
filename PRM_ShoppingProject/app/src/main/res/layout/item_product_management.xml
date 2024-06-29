@@ -2,6 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:layout_weight="0.5"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="8dp"
@@ -9,7 +10,7 @@
     android:id="@+id/item_role_management">
 
     <ImageView
-        android:id="@+id/imageViewRole"
+        android:id="@+id/imageViewProduct"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:scaleType="centerCrop"
@@ -25,47 +26,29 @@
         android:layout_marginTop="20dp">
 
         <TextView
-            android:id="@+id/textViewRoleName"
+            android:id="@+id/textViewProductName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Role Name"
+            android:text="Product Name"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/textViewRoleDescription"
+            android:id="@+id/textViewProductPrice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Role Description"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/textViewRolePermissions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Permissions"
+            android:text="Product price"
             android:textSize="14sp" />
     </LinearLayout>
 
     <Button
-        android:id="@+id/btn_editRole"
+        android:id="@+id/btnProductDetail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginTop="10dp"
         android:background="@drawable/button_background"
-        android:text="Edit"
-        android:textColor="@color/white"
-        android:textSize="16sp" />
-
-    <Button
-        android:id="@+id/btn_deleteRole"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/button_background"
-        android:text="Delete"
+        android:text="Detail"
         android:textColor="@color/white"
         android:textSize="16sp" />
 </LinearLayout>
