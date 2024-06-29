@@ -160,6 +160,7 @@ public class CartActivity extends AppCompatActivity {
             }
 
             cartAdapter = new CartAdapter(this, productCartList);
+            recyclerView.setAdapter(cartAdapter);
             cartOrder = cartAction.getCartPendingByOrderID(accountIDLogin);
             totalPrice.setText(String.format("$%.2f", cartOrder.Total - 2));
             total.setText(String.format("$%.2f", cartOrder.Total));
