@@ -26,11 +26,12 @@
         <activity android:name=".AccountManagementActivity"/>
         <activity android:name=".AccountDetailActivity"/>
         <activity android:name=".AdminDashboardActivity"/>
-<!--        <activity android:name=".ProductManagementActivity"/>-->
+        <activity android:name=".ProductManagementActivity"/>
         <activity android:name=".CreateProductionActivity"/>
         <activity android:name=".ProductDetailManagementActivity"/>
+        <activity android:name=".OrderManagementActivity"/>
         <activity
-            android:name=".ProductManagementActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
