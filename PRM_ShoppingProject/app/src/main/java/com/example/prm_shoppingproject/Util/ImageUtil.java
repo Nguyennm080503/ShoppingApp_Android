@@ -10,7 +10,7 @@ public class ImageUtil {
     public static byte[] getBytesFromBitmap(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
-        resizedBitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
+        resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return stream.toByteArray();
     }
 
@@ -25,7 +25,7 @@ public class ImageUtil {
             return bitmap;
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            return null; // Handle decoding errors gracefully
+            return null;
         }
     }
 }

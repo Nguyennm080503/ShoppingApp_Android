@@ -1,6 +1,5 @@
 package com.example.prm_shoppingproject;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -55,7 +54,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CartActivity extends AppCompatActivity implements CartAdapter.OnQuantityChangeListener, CartAdapter.OnCartEmptyListener{
+public class CartActivity extends AppCompatActivity implements CartAdapter.OnQuantityChangeListener, CartAdapter.OnCartEmptyListener {
     private RecyclerView recyclerView;
     private CartAdapter cartAdapter;
     private ProductAction productAction;
@@ -118,7 +117,6 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnQua
         accountAction.getAccountProfile(accountIDLogin, new AccountCallback() {
             @Override
             public void onSuccess(Account accountLoad) {
-                Toast.makeText(CartActivity.this, "Account loaded successfully!", Toast.LENGTH_SHORT).show();
                 account = accountLoad;
             }
 
@@ -129,7 +127,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnQua
         });
 
         List<CartDetail> cartItems = checkCartPending(accountIDLogin);
-        if (cartItems.isEmpty()) {
+        if (cartItems == null) {
             emptyCartMessage.setVisibility(View.VISIBLE);
             cartFull.setVisibility(View.GONE);
         } else {
