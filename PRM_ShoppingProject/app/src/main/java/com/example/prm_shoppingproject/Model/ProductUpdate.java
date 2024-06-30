@@ -1,25 +1,25 @@
 package com.example.prm_shoppingproject.Model;
 
-public class Product {
+public class ProductUpdate {
     public int ProductID;
     public String Name;
     public double Price;
     public byte[] Image;
     public String Description;
-    public String TypeName;
+    public int TypeID;
     public int Status;
 
-    public Product(int productID, String name, double price, byte[] image, String description, String typeName, int status) {
+    public ProductUpdate() {
+    }
+
+    public ProductUpdate(int productID, String name, double price, byte[] image, String description, int typeID, int status) {
         ProductID = productID;
         Name = name;
         Price = price;
         Image = image;
         Description = description;
-        TypeName = typeName;
+        TypeID = typeID;
         Status = status;
-    }
-
-    public Product() {
     }
 
     public int getProductID() {
@@ -62,12 +62,12 @@ public class Product {
         Description = description;
     }
 
-    public String getTypeName() {
-        return TypeName;
+    public int getTypeID() {
+        return TypeID;
     }
 
-    public void setTypeName(String typename) {
-        TypeName = typename;
+    public void setTypeID(int typeID) {
+        TypeID = typeID;
     }
 
     public int getStatus() {

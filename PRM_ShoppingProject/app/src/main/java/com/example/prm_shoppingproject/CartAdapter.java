@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
+import com.example.prm_shoppingproject.Interface.Account.AccountCallback;
+import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
+import com.example.prm_shoppingproject.Model.Account;
 import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
 import com.example.prm_shoppingproject.Model.CartProduct;
@@ -42,6 +46,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private CartDetailAction cartDetailAction;
     private OnQuantityChangeListener onQuantityChangeListener;
     private OnCartEmptyListener onCartEmptyListener;
+    private Product product;
 
 
     public CartAdapter(Context context, List<CartProduct> productCartList, OnQuantityChangeListener onQuantityChangeListener, OnCartEmptyListener onCartEmptyListener) {
@@ -69,7 +74,16 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             productAction = new ProductAction(this.context);
             cartAction = new CartAction(this.context);
             cartDetailAction = new CartDetailAction(this.context);
-            Product product = productAction.GetProductByID(productId);
+            productAction.GetProductByID(productId, new ProductCallBack() {
+                @Override
+                public void onSuccess(Product productLoad) {
+                    product = productLoad;
+                }
+
+                @Override
+                public void onError(String error) {
+                }
+            });
             SharedPreferences sharedPreferences = context.getSharedPreferences("session", Context.MODE_PRIVATE);
             int accountIDLogin = sharedPreferences.getInt("accountID", -1);
             Cart cart = cartAction.getCartPendingByOrderID(accountIDLogin);
@@ -140,7 +154,16 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private void notifyQuantityChanged() {
         double totalPrice = 0;
         for (CartProduct item : productCartList) {
-            Product product = productAction.GetProductByID(item.ProductID);
+            productAction.GetProductByID(item.ProductID, new ProductCallBack() {
+                @Override
+                public void onSuccess(Product productLoad) {
+                    product = productLoad;
+                }
+
+                @Override
+                public void onError(String error) {
+                }
+            });
             totalPrice += item.Quantity * product.Price;
         }
         if (onQuantityChangeListener != null) {

@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
 import com.example.prm_shoppingproject.Action.AccountAction;
+import com.example.prm_shoppingproject.Interface.Account.AccountCallback;
+import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
 import com.example.prm_shoppingproject.Model.Account;
 
 public class ChangePasswordActivity extends AppCompatActivity {
@@ -23,6 +25,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private AppCompatButton btnChangePassword;
     private ImageView back;
     private AccountAction accountAction;
+    private Account account;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +61,18 @@ public class ChangePasswordActivity extends AppCompatActivity {
         String currentPassword = etCurrentPassword.getText().toString().trim();
         String newPassword = etNewPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
-        Account account = accountAction.GetAccountByID(accountID);
+        accountAction.getAccountProfile(accountID, new AccountCallback() {
+            @Override
+            public void onSuccess(Account accountLoad) {
+                Toast.makeText(ChangePasswordActivity.this, "Account loaded successfully!", Toast.LENGTH_SHORT).show();
+                account = accountLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(ChangePasswordActivity.this, error, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         if (TextUtils.isEmpty(currentPassword)) {
             etCurrentPassword.setError("Current Password is required");
@@ -84,9 +98,16 @@ public class ChangePasswordActivity extends AppCompatActivity {
             etConfirmPassword.setError("Passwords do not match");
             return;
         }
+        accountAction.updatePassword(accountID, newPassword, new MessageCallback() {
+            @Override
+            public void onSuccess(String message) {
+                Toast.makeText(ChangePasswordActivity.this, "Password changed successfully", Toast.LENGTH_SHORT).show();
+            }
 
-        accountAction.updatePassword(accountID, newPassword);
-
-        Toast.makeText(ChangePasswordActivity.this, "Password changed successfully", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onError(String error) {
+                Toast.makeText(ChangePasswordActivity.this, error, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

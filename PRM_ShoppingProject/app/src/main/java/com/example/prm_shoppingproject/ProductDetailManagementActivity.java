@@ -19,7 +19,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.prm_shoppingproject.Action.ProductAction;
+import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
 import com.example.prm_shoppingproject.Model.Product;
+import com.example.prm_shoppingproject.Model.ProductUpdate;
 
 public class ProductDetailManagementActivity extends AppCompatActivity {
     private ProductAction productAction;
@@ -30,6 +32,7 @@ public class ProductDetailManagementActivity extends AppCompatActivity {
     EditText editNameProduct, editPrice, editDescription;
     LinearLayout originalLayout, editLayout;
     AppCompatButton btnEdit;
+    private Product product;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +48,16 @@ public class ProductDetailManagementActivity extends AppCompatActivity {
         productAction = new ProductAction(ProductDetailManagementActivity.this);
         Intent intent = getIntent();
         productID = intent.getIntExtra("productID", -1);
-        Product product = productAction.GetProductByID(productID);
+        productAction.GetProductByID(productID, new ProductCallBack() {
+            @Override
+            public void onSuccess(Product productLoad) {
+                product = productLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+            }
+        });
 
         imageProduct = findViewById(R.id.image_product);
         nameProduct = findViewById(R.id.name_product);
@@ -109,7 +121,11 @@ public class ProductDetailManagementActivity extends AppCompatActivity {
                     product.setName(editNameProduct.getText().toString());
                     product.setPrice(Float.parseFloat(editPrice.getText().toString()));
                     product.setDescription(editDescription.getText().toString());
-                    productAction.UpdateProduct(product); // Assuming you have an update method in ProductAction
+                    ProductUpdate productUpdate = new ProductUpdate();
+                    productUpdate.Description = product.Description;
+                    productUpdate.Name = product.Name;
+                    productUpdate.Price = product.Price;
+                    productAction.UpdateProduct(productUpdate); // Assuming you have an update method in ProductAction
                 }
             }
         });

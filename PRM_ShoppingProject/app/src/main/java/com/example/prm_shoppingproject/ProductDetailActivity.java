@@ -21,6 +21,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
+import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
 import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
 import com.example.prm_shoppingproject.Model.Product;
@@ -30,6 +31,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     private CartAction cartAction;
     private CartDetailAction cartDetailAction;
     private int productID;
+    private Product product;
     ImageView imageProduct, backHome;
     AppCompatButton btn_add;
     TextView nameProduct, price, description;
@@ -49,7 +51,16 @@ public class ProductDetailActivity extends AppCompatActivity {
         cartDetailAction = new CartDetailAction(ProductDetailActivity.this);
         Intent intent = getIntent();
         productID = intent.getIntExtra("productID", -1);
-        Product product = productAction.GetProductByID(productID);
+        productAction.GetProductByID(productID, new ProductCallBack() {
+            @Override
+            public void onSuccess(Product productLoad) {
+                product = productLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+            }
+        });
         SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
         int accountIDLogin = sharedPreferences.getInt("accountID", -1);
 

@@ -16,7 +16,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.prm_shoppingproject.Model.CartItem;
 import com.example.prm_shoppingproject.Model.Product;
 
 import java.util.ArrayList;
@@ -110,28 +109,5 @@ public class ProductManagementAdapter extends RecyclerView.Adapter<ProductManage
 //            productDetail = itemView.findViewById(R.id.product_detail);
 //            btnBuy = itemView.findViewById(R.id.btn_addtoCard);
         }
-    }
-
-    private ArrayList<CartItem> getCartItems() {
-        ArrayList<CartItem> cartItems = new ArrayList<>();
-        Set<String> cartSet = sharedPreferences.getStringSet("cart", new HashSet<>());
-        for (String item : cartSet) {
-            String[] parts = item.split(",");
-            if (parts.length == 2) {
-                int productID = Integer.parseInt(parts[0]);
-                int quantity = Integer.parseInt(parts[1]);
-                cartItems.add(new CartItem(productID, quantity));
-            }
-        }
-        return cartItems;
-    }
-
-    private void saveCartItems(ArrayList<CartItem> cartItems) {
-        Set<String> items = new HashSet<>();
-        for (CartItem item : cartItems) {
-            String itemString = item.getProductID() + "," + item.getQuantity();
-            items.add(itemString);
-        }
-        sharedPreferences.edit().putStringSet("cart", items).apply();
     }
 }
