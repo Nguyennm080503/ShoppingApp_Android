@@ -12,6 +12,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -38,6 +39,7 @@ public class ProductAction {
     private SQLiteDatabase database;
     private static ProductAction instance;
     private Context context;
+    private static final String BASE_URL = "http://10.0.2.2:5265/api";
 
     public ProductAction(Context context) {
         this.openHelper = new DatabaseHelper(context);
@@ -66,20 +68,27 @@ public class ProductAction {
     }
 
     public void addProduct(String name, double price, byte[] image, String description, int typeID, final MessageCallback callback) {
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                "https://localhost:7111/api/product/create",
-                new Response.Listener<String>() {
+        String url = BASE_URL + "/product/create";
+
+        JSONObject jsonRequest = new JSONObject();
+        try {
+            jsonRequest.put("name", name);
+            jsonRequest.put("price", price);
+            jsonRequest.put("image", Base64.encodeToString(image, Base64.DEFAULT));
+            jsonRequest.put("description", description);
+            jsonRequest.put("categoryID", typeID);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, jsonRequest,
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(String s) {
+                    public void onResponse(JSONObject response) {
                         try {
-                            JSONObject object = new JSONObject(s);
-                            if (object.has("statusCode") && object.getInt("statusCode") == 400) {
-                                String message = object.getString("message");
-                                if (message.equals("Product name is existed!")) {
-                                    callback.onError(message);
-                                } else {
-                                    callback.onError(message);
-                                }
+                            if (response.has("statusCode") && response.getInt("statusCode") == 400) {
+                                String message = response.getString("message");
+                                callback.onError(message);
                             } else {
                                 callback.onSuccess("Create new product successfully!");
                             }
@@ -90,47 +99,25 @@ public class ProductAction {
                 },
                 new Response.ErrorListener() {
                     @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        volleyError.printStackTrace();
+                    public void onErrorResponse(VolleyError error) {
+                        VolleyLog.d("Error: " + error.getMessage());
                     }
                 }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> header = new HashMap<>();
-                header.put("Content-Type", "application/json; charset=UTF-8");
-                return header;
-            }
-
-            @Override
-            public byte[] getBody() throws AuthFailureError {
-                try {
-                    JSONObject jsonBody = new JSONObject();
-                    jsonBody.put("name", name);
-                    jsonBody.put("price", price);
-                    jsonBody.put("image", image);
-                    jsonBody.put("description", description);
-                    jsonBody.put("categoryID", typeID);
-
-                    return jsonBody.toString().getBytes(StandardCharsets.UTF_8);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-            @Override
-            public String getBodyContentType() {
-                return "application/json; charset=UTF-8";
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                return headers;
             }
         };
 
         RequestQueue requestQueue = Volley.newRequestQueue(context);
-        requestQueue.add(stringRequest);
+        requestQueue.add(jsonObjectRequest);
     }
 
 
-    public void GetProductByID(int productID, final ProductCallBack callBack){
-        String url = "https://localhost:7111/api/product/detail/" + productID;
+    public void GetProductByID(int productID, final ProductCallBack callBack) {
+        String url = BASE_URL + "/product/detail/" + productID;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -167,7 +154,7 @@ public class ProductAction {
     }
 
     public void getAllProductsActive(final ProductListCallBack callBack) {
-        String url = "https://localhost:7111/api/product/all/active";
+        String url = BASE_URL + "/product/all/active";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -209,7 +196,7 @@ public class ProductAction {
     }
 
     public void getAllProducts(final ProductListCallBack callBack) {
-        String url = "https://localhost:7111/api/product/all";
+        String url = BASE_URL + "/product/all";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -251,7 +238,7 @@ public class ProductAction {
     }
 
     public void getAllProductsByCategory(int typeID, final ProductListCallBack callBack) {
-        String url = "https://localhost:7111/api/product/all/cate/" + typeID;
+        String url = BASE_URL + "/product/all/cate/" + typeID;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -292,17 +279,37 @@ public class ProductAction {
         requestQueue.add(stringRequest);
     }
 
-    public void UpdateProduct(ProductUpdate product) {
-        SQLiteDatabase db = openHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("Name", product.getName());
-        values.put("Price", product.getPrice());
-        values.put("Image", product.getImage());
-        values.put("Description", product.getDescription());
-        values.put("TypeID", product.getTypeID());
-        values.put("Status", product.getStatus());
+    public void UpdateProduct(ProductUpdate product, final MessageCallback callback) {
+        String url = BASE_URL + "/update" + product.ProductID;
 
-        db.update("Product", values, "ProductID = ?", new String[]{String.valueOf(product.getProductID())});
-        db.close();
+        StringRequest stringRequest = new StringRequest(Request.Method.PUT,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        callback.onSuccess("Account status updated successfully!");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        callback.onError("Volley error: " + error.getMessage());
+                    }
+                }) {
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                Map<String, Integer> params = new HashMap<>();
+                params.put("accountID", product.ProductID);
+                return new JSONObject(params).toString().getBytes(StandardCharsets.UTF_8);
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=UTF-8";
+            }
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
     }
 }

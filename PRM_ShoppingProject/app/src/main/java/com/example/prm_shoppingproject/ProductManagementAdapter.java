@@ -87,7 +87,7 @@ public class ProductManagementAdapter extends RecyclerView.Adapter<ProductManage
 
     @Override
     public int getItemCount() {
-        return productList.size();
+        return productList == null ? 0 : productList.size();
     }
 
     static class ProductViewHolder extends RecyclerView.ViewHolder {

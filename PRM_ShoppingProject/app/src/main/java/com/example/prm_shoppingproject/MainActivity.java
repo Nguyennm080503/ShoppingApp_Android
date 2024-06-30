@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = sharedPreferences.edit();
 
                             if (account.AccountID != 0 && account.RoleID == 1 && account.Status == 0) {
-                                Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Login to account successful", Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                                 editor.putInt("accountID", account.AccountID);
                                 editor.apply();

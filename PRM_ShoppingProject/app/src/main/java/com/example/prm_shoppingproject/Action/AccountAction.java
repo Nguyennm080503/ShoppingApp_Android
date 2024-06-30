@@ -34,6 +34,7 @@ import java.util.Map;
 public class AccountAction {
     private static AccountAction instance;
     private Context context;
+    private static final String BASE_URL = "http://10.0.2.2:5265/api";
 
     public AccountAction(Context context) {
         this.context = context;
@@ -48,8 +49,9 @@ public class AccountAction {
 
 
     public void addAccount(String name, String email, String phone, String username, String password, final MessageCallback messageCallback) {
+        String url = BASE_URL + "/register";
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                "https://localhost:7111/api/register",
+                url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
@@ -105,7 +107,7 @@ public class AccountAction {
     }
 
     public void updateAccountStatus(int accountId, int newStatus, final MessageCallback callback) {
-        String url = "https://localhost:7111/api/account/update";
+        String url = BASE_URL + "/account/update";
 
         StringRequest stringRequest = new StringRequest(Request.Method.PUT, url,
                 new Response.Listener<String>() {
@@ -120,7 +122,8 @@ public class AccountAction {
                         error.printStackTrace();
                         callback.onError("Volley error: " + error.getMessage());
                     }
-                }) {
+                })
+        {
             @Override
             public byte[] getBody() throws AuthFailureError {
                 Map<String, Integer> params = new HashMap<>();
@@ -140,7 +143,7 @@ public class AccountAction {
     }
 
     public void updatePassword(int accountId, String password, final MessageCallback callback) {
-        String url = "https://localhost:7111/api/account/change-password";
+        String url = BASE_URL + "/account/change-password";
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -177,10 +180,10 @@ public class AccountAction {
     }
 
 
-
     public void GetAccountIDLogin(String username, String password, final AccountCallback callback) {
+        String url = BASE_URL + "/login";
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                "https://localhost:7111/api/login",
+                url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
@@ -234,7 +237,7 @@ public class AccountAction {
 
 
     public void getAllAccounts(final AccountListCallback callback) {
-        String url = "https://localhost:7111/api/accounts/all";
+        String url = BASE_URL + "/accounts/all";
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
@@ -275,7 +278,7 @@ public class AccountAction {
     }
 
     public void getAccountProfile(int id, final AccountCallback callback) {
-        String url = "https://localhost:7111/api/account/profile/" + id;
+        String url = BASE_URL + "/account/profile/" + id;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
