@@ -152,4 +152,18 @@ public class ProductAction {
         db.close();
         return product;
     }
+
+    public void UpdateProduct(Product product) {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("Name", product.getName());
+        values.put("Price", product.getPrice());
+        values.put("Image", product.getImage());
+        values.put("Description", product.getDescription());
+        values.put("TypeID", product.getTypeID());
+        values.put("Status", product.getStatus());
+
+        db.update("Product", values, "ProductID = ?", new String[]{String.valueOf(product.getProductID())});
+        db.close();
+    }
 }

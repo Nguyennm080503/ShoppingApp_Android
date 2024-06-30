@@ -30,6 +30,8 @@
         <activity android:name=".AdminDashboardActivity"/>
         <activity android:name=".ProductManagementActivity"/>
         <activity android:name=".CreateProductionActivity"/>
+        <activity android:name=".ProductDetailManagementActivity"/>
+        <activity android:name=".OrderManagementActivity"/>
         <activity android:name=".ChangePasswordActivity"/>
         <activity
             android:name=".MainActivity"

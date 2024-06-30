@@ -18,7 +18,7 @@ import java.util.List;
 public class ProductManagementActivity extends AppCompatActivity implements ProductAdapter.OnNumberCartChangeListener{
 
     private RecyclerView recyclerViewProducts;
-    private ProductAdapter productAdapter;
+    private ProductManagementAdapter productAdapter;
     private ProductAction productAction;
     private List<Product> productList;
     private ImageView backHome;
@@ -35,9 +35,7 @@ public class ProductManagementActivity extends AppCompatActivity implements Prod
         backHome = findViewById(R.id.back_home);
         addProduct = findViewById(R.id.btnAddProduct);
         productList = productAction.getAllProducts();
-
-
-        productAdapter = new ProductAdapter(this, productList, this);
+        productAdapter = new ProductManagementAdapter(this, productList);
         recyclerViewProducts.setAdapter(productAdapter);
 
         addProduct.setOnClickListener(new View.OnClickListener() {

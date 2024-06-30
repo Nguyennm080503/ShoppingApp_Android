@@ -53,6 +53,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
             }
         });
 
+        order_management.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AdminDashboardActivity.this, OrderManagementActivity.class);
+                startActivity(intent);
+            }
+        });
+
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
