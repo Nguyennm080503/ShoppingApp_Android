@@ -2,12 +2,12 @@ package com.example.prm_shoppingproject.Model;
 
 public class CartProduct {
     public int ProductID;
-    public byte[] Image;
+    public String Image;
     public String ProductName;
     public int Quantity;
     public double Price;
 
-    public CartProduct(int productID, byte[] image, String productName, int quantity, double price) {
+    public CartProduct(int productID, String image, String productName, int quantity, double price) {
         ProductID = productID;
         Image = image;
         ProductName = productName;
@@ -26,11 +26,11 @@ public class CartProduct {
         ProductID = productID;
     }
 
-    public byte[] getImage() {
+    public String getImage() {
         return Image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         Image = image;
     }
 

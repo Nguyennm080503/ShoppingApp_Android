@@ -56,18 +56,8 @@ public class AccountAction {
                     @Override
                     public void onResponse(String s) {
                         try {
-                            JSONObject object = new JSONObject(s);
-                            if (object.has("statusCode") && object.getInt("statusCode") == 400) {
-                                String message = object.getString("message");
-                                if (message.equals("Username is existed!")) {
-                                    messageCallback.onError(message);
-                                } else {
-                                    messageCallback.onError(message);
-                                }
-                            } else {
-                                messageCallback.onSuccess("Register successfully!");
-                            }
-                        } catch (JSONException e) {
+                            messageCallback.onSuccess("Register successfully!");
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -75,7 +65,9 @@ public class AccountAction {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        volleyError.printStackTrace();
+                        if(volleyError.networkResponse.statusCode == 400){
+                            messageCallback.onError("Username is existed!");
+                        }
                     }
                 }) {
             @Override
@@ -207,7 +199,11 @@ public class AccountAction {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        volleyError.printStackTrace();
+                        if(volleyError.networkResponse.statusCode == 401){
+                            callback.onError("Invalid username or password!");
+                        }else{
+                            callback.onError("Have some error when excute function!");
+                        }
                     }
                 }) {
             @Override
@@ -290,10 +286,11 @@ public class AccountAction {
                             String email = response.getString("email");
                             String phone = response.getString("phone");
                             String username = response.getString("username");
+                            String password = response.getString("password");
                             int roleID = response.getInt("roleID");
                             int status = response.getInt("status");
 
-                            Account account = new Account(accountID, name, email, phone, username, "", roleID, status);
+                            Account account = new Account(accountID, name, email, phone, username, password, roleID, status);
                             callback.onSuccess(account);
                         } catch (JSONException e) {
                             e.printStackTrace();

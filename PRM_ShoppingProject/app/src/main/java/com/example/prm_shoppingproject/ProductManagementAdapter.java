@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm_shoppingproject.Model.Product;
+import com.example.prm_shoppingproject.Util.ImageUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -48,7 +49,7 @@ public class ProductManagementAdapter extends RecyclerView.Adapter<ProductManage
         holder.textViewProductName.setText(product.Name);
         holder.textViewProductPrice.setText(String.format("$%.2f", product.Price));
 
-        Bitmap bitmap = BitmapFactory.decodeByteArray(product.Image, 0, product.Image.length);
+        Bitmap bitmap = ImageUtil.convertBase64ToBitmap(product.Image);
         holder.imageViewProduct.setImageBitmap(bitmap);
 
         holder.btnProductDetail.setOnClickListener(new View.OnClickListener() {

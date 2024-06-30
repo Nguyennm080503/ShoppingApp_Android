@@ -262,8 +262,12 @@ public class CartAction {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                        callback.onError("Volley error: " + error.getMessage());
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 404) {
+                            callback.onError("No cart found for the given account ID.");
+                        } else {
+                            error.printStackTrace();
+                            callback.onError("Volley error: " + error.getMessage());
+                        }
                     }
                 });
 

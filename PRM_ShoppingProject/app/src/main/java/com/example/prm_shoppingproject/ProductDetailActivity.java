@@ -29,6 +29,7 @@ import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
 import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
 import com.example.prm_shoppingproject.Model.Product;
+import com.example.prm_shoppingproject.Util.ImageUtil;
 
 public class ProductDetailActivity extends AppCompatActivity {
     private ProductAction productAction;
@@ -84,7 +85,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             description.setText(product.getDescription());
 
             if (product.Image != null) {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(product.Image, 0, product.Image.length);
+                Bitmap bitmap = ImageUtil.convertBase64ToBitmap(product.Image);
                 imageProduct.setImageBitmap(bitmap);
             }
         }

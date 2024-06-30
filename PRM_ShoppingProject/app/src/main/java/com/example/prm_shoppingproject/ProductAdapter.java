@@ -28,6 +28,7 @@ import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
 import com.example.prm_shoppingproject.Model.CartProduct;
 import com.example.prm_shoppingproject.Model.Product;
+import com.example.prm_shoppingproject.Util.ImageUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -73,7 +74,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.textViewProductPrice.setText(String.format("$%.2f", product.Price));
         cartAction = new CartAction(this.context);
         cartDetailAction = new CartDetailAction(this.context);
-        Bitmap bitmap = BitmapFactory.decodeByteArray(product.Image, 0, product.Image.length);
+        Bitmap bitmap = ImageUtil.convertBase64ToBitmap(product.Image);
         holder.imageViewProduct.setImageBitmap(bitmap);
         SharedPreferences sharedPreferences = context.getSharedPreferences("session", Context.MODE_PRIVATE);
         int accountIDLogin = sharedPreferences.getInt("accountID", -1);

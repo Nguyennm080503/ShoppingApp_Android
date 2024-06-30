@@ -66,10 +66,9 @@ public class RegisterActivity extends AppCompatActivity {
         accountAction.addAccount(name, email, phone, username, password, new MessageCallback() {
             @Override
             public void onSuccess(String message) {
-                Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                 startActivity(intent);
-                finish();
             }
 
             @Override

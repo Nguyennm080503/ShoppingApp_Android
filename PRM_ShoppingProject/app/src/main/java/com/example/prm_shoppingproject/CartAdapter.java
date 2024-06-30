@@ -30,6 +30,7 @@ import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
 import com.example.prm_shoppingproject.Model.CartProduct;
 import com.example.prm_shoppingproject.Model.Product;
+import com.example.prm_shoppingproject.Util.ImageUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,7 +117,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 }
             });
 
-            Bitmap bitmap = BitmapFactory.decodeByteArray(cartProduct.Image, 0, cartProduct.Image.length);
+            Bitmap bitmap = ImageUtil.convertBase64ToBitmap(cartProduct.Image);
             holder.imageViewProduct.setImageBitmap(bitmap);
             holder.btnMinus.setOnClickListener(new View.OnClickListener() {
                 @Override
