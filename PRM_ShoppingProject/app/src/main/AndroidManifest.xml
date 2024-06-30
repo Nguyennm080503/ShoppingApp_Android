@@ -33,6 +33,7 @@
         <activity android:name=".ProductDetailManagementActivity"/>
         <activity android:name=".OrderManagementActivity"/>
         <activity android:name=".ChangePasswordActivity"/>
+        <activity android:name=".OrderDetailManagementActivity"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

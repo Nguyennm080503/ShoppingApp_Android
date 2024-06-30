@@ -2,6 +2,7 @@ package com.example.prm_shoppingproject;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -34,20 +35,21 @@ public class OrderManagementActivity extends AppCompatActivity {
         cartAction = new CartAction(OrderManagementActivity.this);
         backHome = findViewById(R.id.back_home);
 
-        cartAction.getAllCartByAccount(1, new CartListCallBack() {
+        cartAction.getAllCart(new CartListCallBack() {
             @Override
             public void onSuccess(List<Cart> cartListLoad) {
                 cartList = cartListLoad;
+                orderAdapter = new OrderManagementAdapter(OrderManagementActivity.this, cartList);
+                recyclerViewOrders.setAdapter(orderAdapter);
             }
-
             @Override
             public void onError(String error) {
             }
         });
 
 
-        orderAdapter = new OrderManagementAdapter(this, cartList);
-        recyclerViewOrders.setAdapter(orderAdapter);
+
+
         backHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
