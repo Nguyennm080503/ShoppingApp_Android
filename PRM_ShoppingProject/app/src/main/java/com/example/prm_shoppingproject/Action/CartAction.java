@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -18,7 +19,9 @@ import com.example.prm_shoppingproject.DatabaseHelper;
 import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
 import com.example.prm_shoppingproject.Interface.Cart.CartCallBack;
 import com.example.prm_shoppingproject.Interface.Cart.CartListCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailListCallBack;
 import com.example.prm_shoppingproject.Model.Cart;
+import com.example.prm_shoppingproject.Model.CartDetail;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -350,5 +353,83 @@ public class CartAction {
                 });
 
         Volley.newRequestQueue(context).add(jsonObjectRequest);
+    }
+
+    public void getAllCart(final CartListCallBack cartListCallBack){
+        String url = BASE_URL + "/cart/all";
+
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        try {
+                            List<Cart> cartList = new ArrayList<>();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject cartObject = response.getJSONObject(i);
+                                Cart cart = new Cart();
+                                cart.setCartID(cartObject.getInt("cartID"));
+                                cart.setAccountID(cartObject.getInt("accountID"));
+                                cart.setTotalBill(cartObject.getDouble("totalBill"));
+                                cart.setAddress(cartObject.getString("addresss"));
+                                cart.setOrderDate(cartObject.getString("dateOrder"));
+                                System.out.println("Card: " + cart.CartID);
+                                cartList.add(cart);
+                            }
+                            Log.d("getAllCart", "Cart list size: " + cartList.size());
+                            cartListCallBack.onSuccess(cartList);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            cartListCallBack.onError("Response parsing error: " + e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        cartListCallBack.onError("Volley error: " + error.getMessage());
+                    }
+                });
+
+        Volley.newRequestQueue(context).add(jsonArrayRequest);
+    }
+
+    public void GetOrderDetails (int orderId, final CartDetailListCallBack callback){
+        String url = BASE_URL + "/cartdetail/all/" + orderId;
+
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        try {
+                            List<CartDetail> cartList = new ArrayList<>();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject cartObject = response.getJSONObject(i);
+                                CartDetail cart = new CartDetail();
+                                cart.setCartDetailID(cartObject.getInt("cartDetailID"));
+                                cart.setOrderID(cartObject.getInt("cartID"));
+                                cart.setProductID(cartObject.getInt("productID"));
+                                cart.setQuantity(cartObject.getInt("quantity"));
+                                cart.setTotal(cartObject.getDouble("unitPrice"));
+                                System.out.println("Card: " + cart.getCartDetailID());
+                                cartList.add(cart);
+                            }
+                            Log.d("getAllCart", "Cart list size: " + cartList.size());
+                            callback.onSuccess(cartList);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            callback.onError("Response parsing error: " + e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        callback.onError("Volley error: " + error.getMessage());
+                    }
+                });
+
+        Volley.newRequestQueue(context).add(jsonArrayRequest);
     }
 }

@@ -30,15 +30,15 @@ public class OrderManagementAdapter extends RecyclerView.Adapter<OrderManagement
     @NonNull
     @Override
     public OrderManagementAdapter.OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order, parent, false);
         return new OrderManagementAdapter.OrderViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         Cart cart = cartList.get(position);
-        holder.orderID.setText(cart.CartID);
-        holder.orderDate.setText(cart.OrderDate.toString());
+        holder.orderID.setText(String.valueOf(cart.CartID));
+        holder.orderDate.setText(cart.OrderDate != null ? cart.OrderDate.toString() : "");
         holder.totalPrice.setText(String.format("$%.2f", cart.TotalBill));
         holder.status.setText(getStringStatus(cart.Status));
 
@@ -46,7 +46,7 @@ public class OrderManagementAdapter extends RecyclerView.Adapter<OrderManagement
             @Override
             public void onClick(View v) {
                 int orderID = cart.CartID;
-                Intent intent = new Intent(context, ProductDetailActivity.class);
+                Intent intent = new Intent(context, OrderDetailManagementActivity.class);
                 intent.putExtra("cartID", orderID);
                 context.startActivity(intent);
             }
@@ -55,7 +55,7 @@ public class OrderManagementAdapter extends RecyclerView.Adapter<OrderManagement
 
     @Override
     public int getItemCount() {
-        return cartList.size();
+        return cartList != null ? cartList.size() : 0;
     }
 
     static class OrderViewHolder extends RecyclerView.ViewHolder {
