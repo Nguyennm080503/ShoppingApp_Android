@@ -104,7 +104,7 @@ public class HomeActivity extends AppCompatActivity implements ProductAdapter.On
         tshirtCate = findViewById(R.id.cate_tshirt);
         jacketCate = findViewById(R.id.cate_jacket);
 
-        productAction.getAllProducts(new ProductListCallBack() {
+        productAction.getAllProductsActive(new ProductListCallBack() {
             @Override
             public void onSuccess(List<Product> products) {
                 productAdapter = new ProductAdapter(HomeActivity.this, products, HomeActivity.this::onNumberCartChanged);

@@ -166,8 +166,50 @@ public class ProductAction {
         requestQueue.add(jsonObjectRequest);
     }
 
-    public void getAllProducts(final ProductListCallBack callBack) {
+    public void getAllProductsActive(final ProductListCallBack callBack) {
         String url = "https://localhost:7111/api/product/all/active";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            List<Product> products = new ArrayList<>();
+                            JSONArray jsonArray = new JSONArray(response);
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject productJson = jsonArray.getJSONObject(i);
+                                int productID = productJson.getInt("productID");
+                                String name = productJson.getString("name");
+                                double price = productJson.getDouble("price");
+                                String description = productJson.getString("description");
+                                String base64Image = productJson.getString("image");
+                                byte[] image = Base64.decode(base64Image, Base64.DEFAULT);
+                                String categoryName = productJson.getString("category");
+                                int status = productJson.getInt("status");
+
+                                Product product = new Product(productID, name, price, image, description, categoryName, status);
+                                products.add(product);
+                            }
+                            callBack.onSuccess(products);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            callBack.onError("JSON parsing error: " + e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        callBack.onError("JSON parsing error: " + error.getMessage());
+                    }
+                });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
+
+    public void getAllProducts(final ProductListCallBack callBack) {
+        String url = "https://localhost:7111/api/product/all";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
