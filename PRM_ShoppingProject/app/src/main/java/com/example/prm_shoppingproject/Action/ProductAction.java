@@ -143,7 +143,7 @@ public class ProductAction {
                             String description = response.getString("description");
                             String base64Image = response.getString("image");
                             byte[] image = Base64.decode(base64Image, Base64.DEFAULT);
-                            String categoryName = response.getString("category");
+                            String categoryName = response.getString("categoryName");
                             int status = response.getInt("status");
 
                             Product product = new Product(productID, name, price, image, description, categoryName, status);
@@ -183,7 +183,7 @@ public class ProductAction {
                                 String description = productJson.getString("description");
                                 String base64Image = productJson.getString("image");
                                 byte[] image = Base64.decode(base64Image, Base64.DEFAULT);
-                                String categoryName = productJson.getString("category");
+                                String categoryName = productJson.getString("categoryName");
                                 int status = productJson.getInt("status");
 
                                 Product product = new Product(productID, name, price, image, description, categoryName, status);
@@ -225,7 +225,7 @@ public class ProductAction {
                                 String description = productJson.getString("description");
                                 String base64Image = productJson.getString("image");
                                 byte[] image = Base64.decode(base64Image, Base64.DEFAULT);
-                                String categoryName = productJson.getString("category");
+                                String categoryName = productJson.getString("categoryName");
                                 int status = productJson.getInt("status");
 
                                 Product product = new Product(productID, name, price, image, description, categoryName, status);
@@ -267,7 +267,7 @@ public class ProductAction {
                                 String description = productJson.getString("description");
                                 String base64Image = productJson.getString("image");
                                 byte[] image = Base64.decode(base64Image, Base64.DEFAULT);
-                                String categoryName = productJson.getString("category");
+                                String categoryName = productJson.getString("categoryName");
                                 int status = productJson.getInt("status");
 
                                 Product product = new Product(productID, name, price, image, description, categoryName, status);
