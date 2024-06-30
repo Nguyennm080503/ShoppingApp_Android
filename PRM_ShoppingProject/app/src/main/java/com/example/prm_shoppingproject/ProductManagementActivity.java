@@ -39,7 +39,7 @@ public class ProductManagementActivity extends AppCompatActivity implements Prod
         productAction.getAllProducts(new ProductListCallBack() {
             @Override
             public void onSuccess(List<Product> products) {
-                productAdapter = new ProductAdapter(ProductManagementActivity.this, productList, ProductManagementActivity.this::onNumberCartChanged);
+                productAdapter = new ProductManagementAdapter(ProductManagementActivity.this, productList);
                 recyclerViewProducts.setAdapter(productAdapter);
                 Toast.makeText(ProductManagementActivity.this, "Products loaded successfully!", Toast.LENGTH_SHORT).show();
             }

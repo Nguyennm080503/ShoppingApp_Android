@@ -21,6 +21,7 @@ import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
 import com.example.prm_shoppingproject.Interface.Product.ProductListCallBack;
 import com.example.prm_shoppingproject.Model.Account;
 import com.example.prm_shoppingproject.Model.Product;
+import com.example.prm_shoppingproject.Model.ProductUpdate;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -249,7 +250,7 @@ public class ProductAction {
         requestQueue.add(stringRequest);
     }
 
-    public void UpdateProduct(Product product) {
+    public void UpdateProduct(ProductUpdate product) {
         SQLiteDatabase db = openHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("Name", product.getName());
