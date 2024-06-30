@@ -34,6 +34,7 @@ import java.util.Map;
 public class CartAction {
     private static CartAction instance;
     private Context context;
+    private static final String BASE_URL = "http://10.0.2.2:5265/api";
 
     public CartAction(Context context) {
         this.context = context;
@@ -47,7 +48,7 @@ public class CartAction {
     }
 
     public void addCart(int accountID, double totalBill, String address, final MessageCallback callback) {
-        String url = "https://localhost:7111/api/cart/create";
+        String url = BASE_URL + "/cart/create";
         JSONObject jsonObject = new JSONObject();
 
         try {
@@ -101,7 +102,7 @@ public class CartAction {
         Volley.newRequestQueue(context).add(stringRequest);
     }
     public void deleteCart(int orderID, final MessageCallback callback) {
-        String url = "https://localhost:7111/api/cart/delete/" + orderID;
+        String url = BASE_URL + "/cart/delete/" + orderID;
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -139,7 +140,7 @@ public class CartAction {
         Volley.newRequestQueue(context).add(stringRequest);
     }
     public void getAllCartByAccount(int accountID, final CartListCallBack callback) {
-        String url = "https://localhost:7111/api/cart/all/account/" + accountID;
+        String url = BASE_URL + "/cart/all/account/" + accountID;
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
@@ -174,7 +175,7 @@ public class CartAction {
         Volley.newRequestQueue(context).add(jsonArrayRequest);
     }
     public void getCartByOrderID(int orderID, final CartCallBack callback) {
-        String url = "https://localhost:7111/api/cart/order/" + orderID;
+        String url = BASE_URL + "/cart/order/" + orderID;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -205,7 +206,7 @@ public class CartAction {
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
     public void getCartNewOrderID(final CartCallBack callback) {
-        String url = "https://localhost:7111/api/cart/new";
+        String url = BASE_URL + "/cart/new";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -235,7 +236,7 @@ public class CartAction {
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
     public void getCartPendingByAccountID(int accountID, final CartCallBack callback) {
-        String url = "https://localhost:7111/api/cart/pending/account/" + accountID;
+        String url = BASE_URL + "/cart/pending/account/" + accountID;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -266,7 +267,7 @@ public class CartAction {
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
     public void updateTotalCart(int accountId, double total, final MessageCallback callback) {
-        String url = "https://localhost:7111/api/cart/update/total";
+        String url = BASE_URL + "/cart/update/total";
 
         JSONObject jsonBody = new JSONObject();
         try {
@@ -294,7 +295,7 @@ public class CartAction {
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
     public void updateStatusCartFinal(int cartID, String address , final MessageCallback callback) {
-        String url = "https://localhost:7111/api/cart/checkout";
+        String url = BASE_URL + "/cart/checkout";
 
         JSONObject jsonBody = new JSONObject();
         try {
@@ -323,7 +324,7 @@ public class CartAction {
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
     public void updateStatusCart(int cartID, int status, final MessageCallback callback) {
-        String url = "https://localhost:7111/api/cart/update";
+        String url = BASE_URL + "/cart/update";
 
         JSONObject jsonBody = new JSONObject();
         try {

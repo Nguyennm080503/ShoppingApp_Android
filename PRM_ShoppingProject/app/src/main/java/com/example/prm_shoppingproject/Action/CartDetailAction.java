@@ -38,6 +38,7 @@ import java.util.Map;
 public class CartDetailAction {
     private static CartDetailAction instance;
     private Context context;
+    private static final String BASE_URL = "http://10.0.2.2:5265/api";
 
     public CartDetailAction(Context context) {
         this.context = context;
@@ -51,7 +52,7 @@ public class CartDetailAction {
     }
 
     public void addCartDetail(int orderID, int productID, int quantity, double total, final MessageCallback callback) {
-        String url = "https://localhost:7111/api/cartdetail/create";
+        String url = BASE_URL + "/cartdetail/create";
         JSONObject jsonObject = new JSONObject();
 
         try {
@@ -106,7 +107,7 @@ public class CartDetailAction {
         Volley.newRequestQueue(context).add(stringRequest);
     }
     public void getAllCartDetailByOrder(int orderID, final CartDetailListCallBack callBack) {
-        String url = "https://localhost:7111/api/cartdetail/all/" + orderID;
+        String url = BASE_URL + "/cartdetail/all/" + orderID;
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
@@ -142,7 +143,7 @@ public class CartDetailAction {
         Volley.newRequestQueue(context).add(jsonArrayRequest);
     }
     public void getCartDetailItemStatus(int orderId, int productId, final CartDetailCallBack callback) {
-        String url = "https://localhost:7111/api/cartdetail/all/" + orderId + "/detail/" + productId;
+        String url = BASE_URL + "/cartdetail/all/" + orderId + "/detail/" + productId;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -174,7 +175,7 @@ public class CartDetailAction {
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
     public void sumTotalPriceInOrder(int orderId, final CartDetailSumCallBack callback) {
-        String url = "https://localhost:7111/api/cartdetail/all/" + orderId + "/sum";
+        String url = BASE_URL + "/cartdetail/all/" + orderId + "/sum";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -200,7 +201,7 @@ public class CartDetailAction {
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
     public void updateQuantity(int productID, int quantityStatus, int orderID, int quantity, double total, final MessageCallback callback) {
-        String url = "https://localhost:7111/api/cartdetail/update/";
+        String url = BASE_URL + "/cartdetail/update/";
         int new_quantity = 0;
         if(quantityStatus == 1){
             new_quantity = quantity + 1;
@@ -235,7 +236,7 @@ public class CartDetailAction {
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
     public void deleteCartDetail(int productID, int orderID, final MessageCallback callback) {
-        String url = "https://localhost:7111/api/cartdetail/delete";
+        String url = BASE_URL + "/cartdetail/delete";
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -282,7 +283,7 @@ public class CartDetailAction {
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
     public void updateQuantityReOrder(int productID, int orderID, int quantity, double total, final MessageCallback callback) {
-        String url = "https://localhost:7111/api/cartdetail/update/";
+        String url = BASE_URL + "/cartdetail/update/";
         JSONObject jsonBody = new JSONObject();
         try {
             jsonBody.put("cartID", orderID);
