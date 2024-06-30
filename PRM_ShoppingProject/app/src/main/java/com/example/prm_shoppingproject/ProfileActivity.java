@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +18,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.prm_shoppingproject.Action.AccountAction;
+import com.example.prm_shoppingproject.Interface.Account.AccountCallback;
 import com.example.prm_shoppingproject.Model.Account;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -46,7 +48,18 @@ public class ProfileActivity extends AppCompatActivity {
         btn_change = findViewById(R.id.btnChange);
         SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
         int accountIDLogin = sharedPreferences.getInt("accountID", -1);
-        account = accountAction.GetAccountByID(accountIDLogin);
+        accountAction.getAccountProfile(accountIDLogin, new AccountCallback() {
+            @Override
+            public void onSuccess(Account accountLoad) {
+                Toast.makeText(ProfileActivity.this, "Account loaded successfully!", Toast.LENGTH_SHORT).show();
+                account = accountLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(ProfileActivity.this, error, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         name.setText(account.Name);
         phone.setText(account.Phone);

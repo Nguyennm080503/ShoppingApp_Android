@@ -3,7 +3,6 @@ package com.example.prm_shoppingproject;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -18,9 +17,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.prm_shoppingproject.Action.AccountAction;
 import com.example.prm_shoppingproject.Action.TypeAction;
+import com.example.prm_shoppingproject.Interface.Account.AccountCallback;
 import com.example.prm_shoppingproject.Model.Account;
-
-import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
         });
         accountAction = new AccountAction(MainActivity.this);
         typeAction = new TypeAction(MainActivity.this);
-        accountAction.AddAdminAccount();
         typeAction.addTypeNameInit();
 
         EditText usernameEditText = findViewById(R.id.username);
@@ -52,35 +49,40 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String username = usernameEditText.getText().toString().trim();
                 String password = passwordEditText.getText().toString().trim();
-                Account account = accountAction.GetAccountIDLogin(username, password);
-
-                SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
 
                 if (username.isEmpty() || password.isEmpty()) {
                     Toast.makeText(MainActivity.this, "Please enter both username and password", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Logic to check username and password
-                    if (account.AccountID != 0 && account.RoleID == 1 && account.Status == 0) {
-                        Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                        editor.putInt("accountID", account.AccountID);
-                        editor.apply();
-                        startActivity(intent);
-                    }
-                    else if(account.AccountID != 0 && account.RoleID == 0 && account.Status == 0){
-                        Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(MainActivity.this, AdminDashboardActivity.class);
-                        editor.putInt("accountID", account.AccountID);
-                        editor.apply();
-                        startActivity(intent);
-                    }
-                    else if(account.Status == 1){
-                        Toast.makeText(MainActivity.this, "Your account is blocked!", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        Toast.makeText(MainActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
-                    }
+                    accountAction.GetAccountIDLogin(username, password, new AccountCallback() {
+                        @Override
+                        public void onSuccess(Account account) {
+                            SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                            if (account.AccountID != 0 && account.RoleID == 1 && account.Status == 0) {
+                                Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                                editor.putInt("accountID", account.AccountID);
+                                editor.apply();
+                                startActivity(intent);
+                            } else if (account.AccountID != 0 && account.RoleID == 0 && account.Status == 0) {
+                                Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(MainActivity.this, AdminDashboardActivity.class);
+                                editor.putInt("accountID", account.AccountID);
+                                editor.apply();
+                                startActivity(intent);
+                            } else if (account.Status == 1) {
+                                Toast.makeText(MainActivity.this, "Your account is blocked!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(MainActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            Toast.makeText(MainActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
         });

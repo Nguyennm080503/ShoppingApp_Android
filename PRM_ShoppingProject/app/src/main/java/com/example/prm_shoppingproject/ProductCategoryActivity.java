@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.prm_shoppingproject.Action.AccountAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
 import com.example.prm_shoppingproject.Action.TypeAction;
+import com.example.prm_shoppingproject.Interface.Product.ProductListCallBack;
 import com.example.prm_shoppingproject.Model.Account;
 import com.example.prm_shoppingproject.Model.Product;
 import com.example.prm_shoppingproject.Model.TypeProduct;
@@ -32,6 +34,7 @@ public class ProductCategoryActivity extends AppCompatActivity implements Produc
     private TypeAction typeAction;
     private ProductAdapter productAdapter;
     private ImageView backHome;
+    private List<Product> products;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,15 +50,25 @@ public class ProductCategoryActivity extends AppCompatActivity implements Produc
         typeAction = new TypeAction(ProductCategoryActivity.this);
         int category = intent.getIntExtra("categoryID", -1);
         TypeProduct typeProduct = typeAction.GetTypeProductByID(category);
-        List<Product> products = productAction.getAllProductsByCategory(category);
         TextView categoryName = findViewById(R.id.category_name);
         categoryName.setText(typeProduct.TypeName);
         recyclerView = findViewById(R.id.productView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         backHome = findViewById(R.id.back_home);
 
-        productAdapter = new ProductAdapter(this, products, this);
-        recyclerView.setAdapter(productAdapter);
+        productAction.getAllProductsByCategory(category, new ProductListCallBack() {
+            @Override
+            public void onSuccess(List<Product> products) {
+                productAdapter = new ProductAdapter(ProductCategoryActivity.this, products, ProductCategoryActivity.this::onNumberCartChanged);
+                recyclerView.setAdapter(productAdapter);
+                Toast.makeText(ProductCategoryActivity.this, "Products loaded successfully!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(ProductCategoryActivity.this, error, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         backHome.setOnClickListener(new View.OnClickListener() {
             @Override

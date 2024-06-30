@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,9 @@ import com.example.prm_shoppingproject.Action.AccountAction;
 import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
+import com.example.prm_shoppingproject.Interface.Account.AccountCallback;
+import com.example.prm_shoppingproject.Interface.Account.AccountListCallback;
+import com.example.prm_shoppingproject.Interface.Product.ProductListCallBack;
 import com.example.prm_shoppingproject.Model.Account;
 import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.Product;
@@ -57,8 +61,19 @@ public class HomeActivity extends AppCompatActivity implements ProductAdapter.On
         productAction = new ProductAction(HomeActivity.this);
         SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
         accountIDLogin = sharedPreferences.getInt("accountID", -1);
-        List<Product> products = productAction.getAllProducts();
-        account = accountAction.GetAccountByID(accountIDLogin);
+
+        accountAction.getAccountProfile(accountIDLogin, new AccountCallback() {
+            @Override
+            public void onSuccess(Account accountLoad) {
+                Toast.makeText(HomeActivity.this, "Account loaded successfully!", Toast.LENGTH_SHORT).show();
+                account = accountLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(HomeActivity.this, error, Toast.LENGTH_SHORT).show();
+            }
+        });
         TextView name = findViewById(R.id.name);
         number_cart = findViewById(R.id.number);
         notification = findViewById(R.id.ic_notification);
@@ -89,8 +104,19 @@ public class HomeActivity extends AppCompatActivity implements ProductAdapter.On
         tshirtCate = findViewById(R.id.cate_tshirt);
         jacketCate = findViewById(R.id.cate_jacket);
 
-        productAdapter = new ProductAdapter(this, products, this);
-        recyclerView.setAdapter(productAdapter);
+        productAction.getAllProducts(new ProductListCallBack() {
+            @Override
+            public void onSuccess(List<Product> products) {
+                productAdapter = new ProductAdapter(HomeActivity.this, products, HomeActivity.this::onNumberCartChanged);
+                recyclerView.setAdapter(productAdapter);
+                Toast.makeText(HomeActivity.this, "Products loaded successfully!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(HomeActivity.this, error, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         cartView.setOnClickListener(new View.OnClickListener() {
             @Override
