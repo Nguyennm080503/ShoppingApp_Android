@@ -60,13 +60,6 @@
             android:hint="Type ID"
             android:inputType="number" />
 
-        <EditText
-            android:id="@+id/editTextProductStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Status"
-            android:inputType="number" />
-
         <Button
             android:id="@+id/buttonSaveProduct"
             android:layout_width="match_parent"

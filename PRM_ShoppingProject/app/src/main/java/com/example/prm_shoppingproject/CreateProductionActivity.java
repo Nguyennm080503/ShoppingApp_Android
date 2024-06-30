@@ -33,7 +33,6 @@ public class CreateProductionActivity extends AppCompatActivity {
     private EditText editTextProductPrice;
     private EditText editTextProductDescription;
     private EditText editTextProductTypeID;
-    private EditText editTextProductStatus;
     private ImageView imageViewProduct;
     private byte[] imageBytes;
     private ProductAction productAction;
@@ -47,7 +46,6 @@ public class CreateProductionActivity extends AppCompatActivity {
         editTextProductPrice = findViewById(R.id.editTextProductPrice);
         editTextProductDescription = findViewById(R.id.editTextProductDescription);
         editTextProductTypeID = findViewById(R.id.editTextProductTypeID);
-        editTextProductStatus = findViewById(R.id.editTextProductStatus);
         imageViewProduct = findViewById(R.id.imageViewProduct);
         Button buttonSelectImage = findViewById(R.id.buttonSelectImage);
         Button buttonSaveProduct = findViewById(R.id.buttonSaveProduct);
@@ -108,20 +106,19 @@ public class CreateProductionActivity extends AppCompatActivity {
         String priceString = editTextProductPrice.getText().toString().trim();
         String description = editTextProductDescription.getText().toString().trim();
         String typeIDString = editTextProductTypeID.getText().toString().trim();
-        String statusString = editTextProductStatus.getText().toString().trim();
 
-        if (name.isEmpty() || priceString.isEmpty() || description.isEmpty() || typeIDString.isEmpty() || statusString.isEmpty() || imageBytes == null) {
+        if (name.isEmpty() || priceString.isEmpty() || description.isEmpty() || typeIDString.isEmpty() || imageBytes == null) {
             Toast.makeText(this, "Please fill out all fields and select an image.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         double price = Double.parseDouble(priceString);
         int typeID = Integer.parseInt(typeIDString);
-        int status = Integer.parseInt(statusString);
+        int status = 0;
 
-        ProductCreate product = new ProductCreate(0, name, price, imageBytes, description, typeID, status);
+        ProductCreate product = new ProductCreate(name, price, imageBytes, description, typeID, status);
 
-        productAction.addProduct(product.getName(), product.getPrice(), product.getImage(), product.getDescription(), product.getTypeID(), new MessageCallback() {
+        productAction.addProduct(product.getName(), product.getPrice(), product.getImage(), product.getDescription(), product.getCategoryID(), new MessageCallback() {
             @Override
             public void onSuccess(String message) {
                 Toast.makeText(CreateProductionActivity.this, message, Toast.LENGTH_SHORT).show();
@@ -134,6 +131,5 @@ public class CreateProductionActivity extends AppCompatActivity {
                 Toast.makeText(CreateProductionActivity.this, error, Toast.LENGTH_SHORT).show();
             }
         });
-        
     }
 }

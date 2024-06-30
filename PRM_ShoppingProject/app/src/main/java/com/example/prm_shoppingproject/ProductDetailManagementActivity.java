@@ -19,6 +19,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.prm_shoppingproject.Action.ProductAction;
+import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
 import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
 import com.example.prm_shoppingproject.Model.Product;
 import com.example.prm_shoppingproject.Model.ProductUpdate;
@@ -125,7 +126,17 @@ public class ProductDetailManagementActivity extends AppCompatActivity {
                     productUpdate.Description = product.Description;
                     productUpdate.Name = product.Name;
                     productUpdate.Price = product.Price;
-                    productAction.UpdateProduct(productUpdate); // Assuming you have an update method in ProductAction
+                    productAction.UpdateProduct(productUpdate, new MessageCallback() {
+                        @Override
+                        public void onSuccess(String message) {
+                            Toast.makeText(ProductDetailManagementActivity.this, message, Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            Toast.makeText(ProductDetailManagementActivity.this, error, Toast.LENGTH_SHORT).show();
+                        }
+                    }); // Assuming you have an update method in ProductAction
                 }
             }
         });

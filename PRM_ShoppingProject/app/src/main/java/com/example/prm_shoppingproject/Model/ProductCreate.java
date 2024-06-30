@@ -1,33 +1,25 @@
 package com.example.prm_shoppingproject.Model;
 
 public class ProductCreate {
-    public int ProductID;
+
     public String Name;
     public double Price;
     public byte[] Image;
     public String Description;
-    public int TypeID;
+    public int CategoryID;
     public int Status;
 
     public ProductCreate() {
     }
 
-    public ProductCreate(int productID, String name, double price, byte[] image, String description, int typeID, int status) {
-        ProductID = productID;
+    public ProductCreate(String name, double price, byte[] image, String description, int categoryID, int status) {
+
         Name = name;
         Price = price;
         Image = image;
         Description = description;
-        TypeID = typeID;
+        CategoryID = categoryID;
         Status = status;
-    }
-
-    public int getProductID() {
-        return ProductID;
-    }
-
-    public void setProductID(int productID) {
-        ProductID = productID;
     }
 
     public String getName() {
@@ -62,12 +54,12 @@ public class ProductCreate {
         Description = description;
     }
 
-    public int getTypeID() {
-        return TypeID;
+    public int getCategoryID() {
+        return CategoryID;
     }
 
-    public void setTypeID(int typeID) {
-        TypeID = typeID;
+    public void setCategoryID(int typeID) {
+        CategoryID = typeID;
     }
 
     public int getStatus() {
