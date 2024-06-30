@@ -25,9 +25,12 @@ import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
 import com.example.prm_shoppingproject.Interface.Account.AccountCallback;
 import com.example.prm_shoppingproject.Interface.Account.AccountListCallback;
+import com.example.prm_shoppingproject.Interface.Cart.CartCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailListCallBack;
 import com.example.prm_shoppingproject.Interface.Product.ProductListCallBack;
 import com.example.prm_shoppingproject.Model.Account;
 import com.example.prm_shoppingproject.Model.Cart;
+import com.example.prm_shoppingproject.Model.CartDetail;
 import com.example.prm_shoppingproject.Model.Product;
 
 import java.util.ArrayList;
@@ -46,6 +49,8 @@ public class HomeActivity extends AppCompatActivity implements ProductAdapter.On
     private TextView number_cart;
     private LinearLayout profileScreen, cartScreen, mapScreen, orderScreen, shoeCate, shortCate, tshirtCate, shirtCate,jacketCate;
     private Account account;
+    private int number;
+    private Cart cart;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,12 +84,32 @@ public class HomeActivity extends AppCompatActivity implements ProductAdapter.On
         notification = findViewById(R.id.ic_notification);
         cartAction = new CartAction(HomeActivity.this);
         cartDetailAction = new CartDetailAction(HomeActivity.this);
-        Cart cart = cartAction.getCartPendingByOrderID(accountIDLogin);
+        cartAction.getCartPendingByAccountID(accountIDLogin, new CartCallBack() {
+            @Override
+            public void onSuccess(Cart cartLoad) {
+                cart = cartLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
         if(cart.CartID == 0){
             notification.setVisibility(View.GONE);
             number_cart.setVisibility(View.GONE);
         }else{
-            int number = cartDetailAction.getAllCartDetailByOrder(cart.CartID).size();
+            cartDetailAction.getAllCartDetailByOrder(cart.CartID, new CartDetailListCallBack() {
+                @Override
+                public void onSuccess(List<CartDetail> cartList) {
+                    number = cartList.size();
+                }
+
+                @Override
+                public void onError(String error) {
+
+                }
+            });
             number_cart.setText(String.valueOf(number));
             notification.setVisibility(View.VISIBLE);
             number_cart.setVisibility(View.VISIBLE);

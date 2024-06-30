@@ -33,6 +33,9 @@ import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
 import com.example.prm_shoppingproject.Interface.Account.AccountCallback;
+import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
+import com.example.prm_shoppingproject.Interface.Cart.CartCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailListCallBack;
 import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
 import com.example.prm_shoppingproject.Model.Account;
 import com.example.prm_shoppingproject.Model.Cart;
@@ -74,6 +77,8 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnQua
     private final String Apikey = "pk_test_51PWSgUD9V5NbhcqDuqScwxUf2suaAeJyq5rwTNuX6aLyItUgQewTpxCv6SPaWoAUre5UytqnDAAyLr6kz1wFGnjE00WFU1dNuy";
     private final String ApiSercret = "sk_test_51PWSgUD9V5NbhcqDsI3wIY0o5CdFsN0J4lWd1x7zvIvxAnc8ojBiiB9S87CdvNNh5LSyNZLwhBzsmtnjQEMmtsNV00InidgtcJ";
     private PaymentSheet paymentSheet;
+    private Cart cartOrder;
+    private List<CartDetail> cartDetails;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +129,6 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnQua
         });
 
         List<CartDetail> cartItems = checkCartPending(accountIDLogin);
-        Cart cartOrder = new Cart();
         if (cartItems.isEmpty()) {
             emptyCartMessage.setVisibility(View.VISIBLE);
             cartFull.setVisibility(View.GONE);
@@ -153,9 +157,19 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnQua
 
             cartAdapter = new CartAdapter(this, productCartList, this, this);
             recyclerView.setAdapter(cartAdapter);
-            cartOrder = cartAction.getCartPendingByOrderID(accountIDLogin);
-            totalPrice.setText(String.format("$%.2f", cartOrder.Total - 2));
-            total.setText(String.format("$%.2f", cartOrder.Total));
+            cartAction.getCartPendingByAccountID(accountIDLogin, new CartCallBack() {
+                @Override
+                public void onSuccess(Cart cart) {
+                    cartOrder = cart;
+                }
+
+                @Override
+                public void onError(String error) {
+
+                }
+            });
+            totalPrice.setText(String.format("$%.2f", cartOrder.TotalBill - 2));
+            total.setText(String.format("$%.2f", cartOrder.TotalBill));
             name.setText(account.Name);
             phone.setText(account.Phone);
         }
@@ -317,26 +331,64 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnQua
         String txt_address = address.getText().toString();
         SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
         int accountIDLogin = sharedPreferences.getInt("accountID", -1);
-        Cart cart = cartAction.getCartPendingByOrderID(accountIDLogin);
-        if (paymentSheetResult instanceof PaymentSheetResult.Completed) {
-            PaymentOrder(cart.CartID, txt_address, cartActionPayment, 1);
-            Intent intent = new Intent(CartActivity.this, HomeActivity.class);
-            Toast.makeText(this, "Payment successfully!", Toast.LENGTH_SHORT).show();
-        } else {
-            PaymentOrder(cart.CartID, txt_address, cartActionPayment, 2);
-            Toast.makeText(this, "Fail to paymet!", Toast.LENGTH_SHORT).show();
-        }
+        cartAction.getCartPendingByAccountID(accountIDLogin, new CartCallBack() {
+            @Override
+            public void onSuccess(Cart cartLoad) {
+                if (paymentSheetResult instanceof PaymentSheetResult.Completed) {
+                    PaymentOrder(cartLoad.CartID, txt_address, cartActionPayment, 1);
+                    Intent intent = new Intent(CartActivity.this, HomeActivity.class);
+                    Toast.makeText(CartActivity.this, "Payment successfully!", Toast.LENGTH_SHORT).show();
+                } else {
+                    PaymentOrder(cartLoad.CartID, txt_address, cartActionPayment, 2);
+                    Toast.makeText(CartActivity.this, "Fail to paymet!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
     }
 
     private void PaymentOrder(int cartID, String address, CartAction cartAction, int status) {
-        cartAction.updateStatusCart(cartID, address, status);
+        cartAction.updateStatusCartFinal(cartID, address, new MessageCallback() {
+            @Override
+            public void onSuccess(String message) {
+
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
     }
 
     private List<CartDetail> checkCartPending(int accountID) {
-        List<CartDetail> cartDetails = new ArrayList<>();
-        Cart cart = cartAction.getCartPendingByOrderID(accountID);
-        if (cart != null) {
-            cartDetails = cartDetailAction.getAllCartDetailByOrder(cart.CartID);
+        cartAction.getCartPendingByAccountID(accountID, new CartCallBack() {
+            @Override
+            public void onSuccess(Cart cart) {
+                cartOrder = cart;
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
+        if (cartOrder != null) {
+            cartDetailAction.getAllCartDetailByOrder(cartOrder.CartID, new CartDetailListCallBack() {
+                @Override
+                public void onSuccess(List<CartDetail> cartList) {
+                    cartDetails = cartList;
+                }
+
+                @Override
+                public void onError(String error) {
+
+                }
+            });
         }
         return cartDetails;
     }

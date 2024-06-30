@@ -19,6 +19,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
+import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
+import com.example.prm_shoppingproject.Interface.Cart.CartCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailListCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailSumCallBack;
 import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
 import com.example.prm_shoppingproject.Model.CartProduct;
@@ -39,6 +44,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     private SharedPreferences sharedPreferences;
     private CartAction cartAction;
     private CartDetailAction cartDetailAction;
+    private Cart cart, cartPending;
+    private int numberItemCart = 0;
+    private CartDetail cartDetail;
+    private double sum;
 
     private OnNumberCartChangeListener onNumberCartChangeListener;
 
@@ -83,24 +92,103 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             @Override
             public void onClick(View v) {
                 int productID = product.ProductID;
-                Cart cart = cartAction.getCartPendingByOrderID(accountIDLogin);
+                cartAction.getCartPendingByAccountID(accountIDLogin, new CartCallBack() {
+                    @Override
+                    public void onSuccess(Cart cartLoad) {
+                        cart = cartLoad;
+                    }
+
+                    @Override
+                    public void onError(String error) {
+
+                    }
+                });
                 if(cart.CartID != 0){
-                    CartDetail cartDetail = cartDetailAction.getCartDetailByProductIDPending(productID, cart.CartID);
+                    cartDetailAction.getCartDetailItemStatus(productID, cart.CartID, new CartDetailCallBack() {
+                        @Override
+                        public void onSuccess(CartDetail cartDetailLoad) {
+                            cartDetail = cartDetailLoad;
+                        }
+
+                        @Override
+                        public void onError(String error) {
+
+                        }
+                    });
                     if (cartDetail != null){
-                        cartDetailAction.updateQuantity(productID, 1, cartDetail.OrderID, cartDetail.Quantity,product.Price * (cartDetail.Quantity + 1));
+                        cartDetailAction.updateQuantity(productID, 1, cartDetail.OrderID, cartDetail.Quantity, product.Price * (cartDetail.Quantity + 1), new MessageCallback() {
+                            @Override
+                            public void onSuccess(String message) {
+
+                            }
+
+                            @Override
+                            public void onError(String error) {
+
+                            }
+                        });
                         calculateTotalPrice(cartAction, accountIDLogin, cartDetailAction, cartDetail.OrderID);
                         notifyNumberCartChanged(cart.CartID);
                     }else{
-                        Cart cartPending = cartAction.getCartPendingByOrderID(accountIDLogin);
-                        cartDetailAction.addCartDetail(cartPending.CartID, productID, 1, product.Price * 1);
+                        cartAction.getCartPendingByAccountID(accountIDLogin, new CartCallBack() {
+                            @Override
+                            public void onSuccess(Cart cart) {
+                                cartPending = cart;
+                            }
+
+                            @Override
+                            public void onError(String error) {
+
+                            }
+                        });
+                        cartDetailAction.addCartDetail(cartPending.CartID, productID, 1, product.Price * 1, new MessageCallback() {
+                            @Override
+                            public void onSuccess(String message) {
+
+                            }
+
+                            @Override
+                            public void onError(String error) {
+
+                            }
+                        });
                         notifyNumberCartChanged(cartPending.CartID);
                     }
                 }
                 else{
-                    cartAction.addCart(accountIDLogin, (product.Price * 1) + 2 ,"", 0);
-                    Cart cartPending = cartAction.getCartPendingByOrderID(accountIDLogin);
-                    cartDetailAction.addCartDetail(cartPending.CartID, productID, 1, product.Price * 1);
-                    notifyNumberCartChanged(cartPending.CartID);
+
+                    cartAction.addCart(accountIDLogin, (product.Price * 1) + 2 ,"", new MessageCallback() {
+                        @Override
+                        public void onSuccess(String message) {
+                            cartAction.getCartPendingByAccountID(accountIDLogin, new CartCallBack() {
+                                @Override
+                                public void onSuccess(Cart cart) {
+                                    cartPending = cart;
+                                }
+
+                                @Override
+                                public void onError(String error) {
+
+                                }
+                            });
+                            cartDetailAction.addCartDetail(cartPending.CartID, productID, 1, product.Price * 1, new MessageCallback() {
+                                @Override
+                                public void onSuccess(String message) {
+
+                                }
+
+                                @Override
+                                public void onError(String error) {
+
+                                }
+                            });
+                            notifyNumberCartChanged(cartPending.CartID);
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                        }
+                    });
                 }
                 Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show();
             }
@@ -114,8 +202,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     private void notifyNumberCartChanged(int cartID) {
-        int numberItemCart = 0;
-        numberItemCart = cartDetailAction.getAllCartDetailByOrder(cartID).size();
+        cartDetailAction.getAllCartDetailByOrder(cartID, new CartDetailListCallBack() {
+            @Override
+            public void onSuccess(List<CartDetail> cartList) {
+                numberItemCart = cartList.size();
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
         if (onNumberCartChangeListener != null) {
             onNumberCartChangeListener.onNumberCartChanged(numberItemCart);
         }
@@ -141,7 +238,27 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     private void calculateTotalPrice(CartAction cartAction, int accountIDLogin, CartDetailAction cartDetailAction, int orderID) {
-        double sum = cartDetailAction.sumTotalPriceInOrder(orderID);
-        cartAction.updateTotalCart(accountIDLogin, sum + 2);
+        cartDetailAction.sumTotalPriceInOrder(orderID, new CartDetailSumCallBack() {
+            @Override
+            public void onSuccess(double sumLoad) {
+                sum = sumLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
+        cartAction.updateTotalCart(accountIDLogin, sum + 2, new MessageCallback() {
+            @Override
+            public void onSuccess(String message) {
+
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
     }
 }

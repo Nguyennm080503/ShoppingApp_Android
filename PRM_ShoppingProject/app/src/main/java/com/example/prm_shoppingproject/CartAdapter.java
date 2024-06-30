@@ -20,6 +20,10 @@ import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
 import com.example.prm_shoppingproject.Interface.Account.AccountCallback;
+import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
+import com.example.prm_shoppingproject.Interface.Cart.CartCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailSumCallBack;
 import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
 import com.example.prm_shoppingproject.Model.Account;
 import com.example.prm_shoppingproject.Model.Cart;
@@ -47,6 +51,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private OnQuantityChangeListener onQuantityChangeListener;
     private OnCartEmptyListener onCartEmptyListener;
     private Product product;
+    private Cart cart;
+    private CartDetail cartDetail;
+    private double sum;
 
 
     public CartAdapter(Context context, List<CartProduct> productCartList, OnQuantityChangeListener onQuantityChangeListener, OnCartEmptyListener onCartEmptyListener) {
@@ -86,8 +93,28 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             });
             SharedPreferences sharedPreferences = context.getSharedPreferences("session", Context.MODE_PRIVATE);
             int accountIDLogin = sharedPreferences.getInt("accountID", -1);
-            Cart cart = cartAction.getCartPendingByOrderID(accountIDLogin);
-            CartDetail cartDetail = cartDetailAction.getCartDetailItemStatus(cart.CartID, cartProduct.ProductID);
+            cartAction.getCartPendingByAccountID(accountIDLogin, new CartCallBack() {
+                @Override
+                public void onSuccess(Cart cartLoad) {
+                    cart = cartLoad;
+                }
+
+                @Override
+                public void onError(String error) {
+
+                }
+            });
+             cartDetailAction.getCartDetailItemStatus(cart.CartID, cartProduct.ProductID, new CartDetailCallBack() {
+                @Override
+                public void onSuccess(CartDetail cartDetailLoad) {
+                    cartDetail = cartDetailLoad;
+                }
+
+                @Override
+                public void onError(String error) {
+
+                }
+            });
 
             Bitmap bitmap = BitmapFactory.decodeByteArray(cartProduct.Image, 0, cartProduct.Image.length);
             holder.imageViewProduct.setImageBitmap(bitmap);
@@ -98,7 +125,17 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                     if (currentQuantity > 1) {
                         cartProduct.Quantity = currentQuantity - 1;
                         holder.quantity.setText(String.valueOf(currentQuantity - 1));
-                        cartDetailAction.updateQuantity(cartDetail.ProductID, -1, cartDetail.OrderID, cartDetail.Quantity, product.Price * cartProduct.Quantity);
+                        cartDetailAction.updateQuantity(cartDetail.ProductID, -1, cartDetail.OrderID, cartDetail.Quantity, product.Price * cartProduct.Quantity, new MessageCallback() {
+                            @Override
+                            public void onSuccess(String message) {
+
+                            }
+
+                            @Override
+                            public void onError(String error) {
+
+                            }
+                        });
                         holder.textViewProductPrice.setText(String.format("$%.2f", product.Price * cartProduct.Quantity));
                         calculateTotalPrice(cartAction, accountIDLogin, cartDetailAction, cartDetail.OrderID);
                         notifyQuantityChanged();
@@ -112,7 +149,17 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                     int currentQuantity = Integer.parseInt(holder.quantity.getText().toString());
                     cartProduct.Quantity = currentQuantity + 1;
                     holder.quantity.setText(String.valueOf(currentQuantity + 1));
-                    cartDetailAction.updateQuantity(cartDetail.ProductID, 1, cartDetail.OrderID, cartDetail.Quantity, product.Price * cartProduct.Quantity);
+                    cartDetailAction.updateQuantity(cartDetail.ProductID, 1, cartDetail.OrderID, cartDetail.Quantity, product.Price * cartProduct.Quantity, new MessageCallback() {
+                        @Override
+                        public void onSuccess(String message) {
+
+                        }
+
+                        @Override
+                        public void onError(String error) {
+
+                        }
+                    });
                     holder.textViewProductPrice.setText(String.format("$%.2f", product.Price * cartProduct.Quantity));
                     calculateTotalPrice(cartAction, accountIDLogin, cartDetailAction, cartDetail.OrderID);
                     notifyQuantityChanged();
@@ -124,7 +171,15 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 public void onClick(View v) {
                     removeItem(position, cartDetail.OrderID);
                     if (productCartList.size() == 0){
-                        cartAction.deleteCart(cart.CartID);
+                        cartAction.deleteCart(cartDetail.OrderID, new MessageCallback() {
+                            @Override
+                            public void onSuccess(String message) {
+                            }
+
+                            @Override
+                            public void onError(String error) {
+                            }
+                        });
                     }else{
                         calculateTotalPrice(cartAction, accountIDLogin, cartDetailAction, cartDetail.OrderID);
                     }
@@ -132,7 +187,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             });
         }catch (Exception ex){
             ex.printStackTrace();
-            // Log the exception
             Log.e("CartAdapter", "Exception in onBindViewHolder: " + ex.getMessage());
         }
 
@@ -140,7 +194,17 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
     private void removeItem(int position, int cartID) {
         CartProduct cartProduct = productCartList.get(position);
-        cartDetailAction.deleteCartDetail(cartID, cartProduct.ProductID);
+        cartDetailAction.deleteCartDetail(cartID, cartProduct.ProductID, new MessageCallback() {
+            @Override
+            public void onSuccess(String message) {
+
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
         productCartList.remove(position);
         notifyItemRemoved(position);
         notifyQuantityChanged();
@@ -173,8 +237,28 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
 
     private void calculateTotalPrice(CartAction cartAction, int accountIDLogin, CartDetailAction cartDetailAction, int orderID) {
-        double sum = cartDetailAction.sumTotalPriceInOrder(orderID);
-        cartAction.updateTotalCart(accountIDLogin, sum + 2);
+        cartDetailAction.sumTotalPriceInOrder(orderID, new CartDetailSumCallBack() {
+            @Override
+            public void onSuccess(double sumLoad) {
+                sum = sumLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
+        cartAction.updateTotalCart(accountIDLogin, sum + 2, new MessageCallback() {
+            @Override
+            public void onSuccess(String message) {
+
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
     }
 
     public List<CartProduct> getCartProducts() {
