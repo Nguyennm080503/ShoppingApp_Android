@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,9 @@ import com.example.prm_shoppingproject.Action.AccountAction;
 import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
+import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
+import com.example.prm_shoppingproject.Interface.Cart.CartCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailListCallBack;
 import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
 import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
@@ -43,6 +47,8 @@ public class OrderDetailActivity extends AppCompatActivity {
     private TextView totalPrice, total, address;
 
     private ImageView backHome;
+    private Cart myCart, cartNew, cart;
+    private List<CartDetail> cartItems, cartDetails;
 
     @SuppressLint({"DefaultLocale", "ResourceAsColor"})
     @Override
@@ -70,7 +76,18 @@ public class OrderDetailActivity extends AppCompatActivity {
         cartAction = new CartAction(OrderDetailActivity.this);
         productAction = new ProductAction(OrderDetailActivity.this);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 1));
-        Cart cart = cartAction.getCartByOrderID(orderID);
+        cartAction.getCartByOrderID(orderID, new CartCallBack() {
+            @Override
+            public void onSuccess(Cart cartLoad) {
+                cart = cartLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
+
         if(cart.Status != 3 || cart.Status != 4 || cart.Status != 5){
             cancel.setBackgroundColor(R.color.red);
             cancel.setText("Cancel");
@@ -79,7 +96,17 @@ public class OrderDetailActivity extends AppCompatActivity {
             cancel.setText("Re-order");
         }
 
-        List<CartDetail> cartItems =  cartDetailAction.getAllCartDetailByOrder(orderID);
+        cartDetailAction.getAllCartDetailByOrder(orderID, new CartDetailListCallBack() {
+            @Override
+            public void onSuccess(List<CartDetail> cartListLoad) {
+                cartItems = cartListLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
         productCartList = new ArrayList<>();
         for (CartDetail item: cartItems) {
             CartProduct cartProduct = new CartProduct();
@@ -104,8 +131,8 @@ public class OrderDetailActivity extends AppCompatActivity {
 
         cartAdapter = new OrderDetailAdapter(this, productCartList);
         recyclerView.setAdapter(cartAdapter);
-        total.setText(String.format("$%.2f", (cart.Total)));
-        totalPrice.setText(String.format("$%.2f", (cart.Total - 2)));
+        total.setText(String.format("$%.2f", (cart.TotalBill)));
+        totalPrice.setText(String.format("$%.2f", (cart.TotalBill - 2)));
         address.setText(cart.Address);
 
         backHome.setOnClickListener(new View.OnClickListener() {
@@ -124,18 +151,76 @@ public class OrderDetailActivity extends AppCompatActivity {
                 cartDetailAction = new CartDetailAction(OrderDetailActivity.this);
                 productAction = new ProductAction(OrderDetailActivity.this);
                 if(text.equals("Cancel")){
-                    cartAction.updateStatusCart(cart.CartID, cart.Address, 2);
+                    cartAction.updateStatusCart(cart.CartID, 2, new MessageCallback() {
+                        @Override
+                        public void onSuccess(String message) {
+
+                        }
+
+                        @Override
+                        public void onError(String error) {
+
+                        }
+                    });
                 }
                 else{
-                    Cart myCart = cartAction.getCartPendingByOrderID(accountIDLogin);
+                    cartAction.getCartPendingByAccountID(accountIDLogin, new CartCallBack() {
+                        @Override
+                        public void onSuccess(Cart cart) {
+                            myCart = cart;
+                        }
+
+                        @Override
+                        public void onError(String error) {
+
+                        }
+                    });
                     if (myCart.CartID == 0) {
-                        cartAction.addCart(accountIDLogin, cart.Total, "", 0);
-                        Cart cartNew = cartAction.getCartPendingByOrderID(accountIDLogin);
+                        cartAction.addCart(accountIDLogin, cart.TotalBill, "", new MessageCallback() {
+                            @Override
+                            public void onSuccess(String message) {
+                            }
+
+                            @Override
+                            public void onError(String error) {
+                            }
+                        });
+                        cartAction.getCartPendingByAccountID(accountIDLogin, new CartCallBack() {
+                            @Override
+                            public void onSuccess(Cart cart) {
+                                cartNew = cart;
+                            }
+
+                            @Override
+                            public void onError(String error) {
+
+                            }
+                        });
                         for (CartDetail item : cartItems) {
-                            cartDetailAction.addCartDetail(cartNew.CartID, item.ProductID, item.Quantity, item.Total);
+                            cartDetailAction.addCartDetail(cartNew.CartID, item.ProductID, item.Quantity, item.Total, new MessageCallback() {
+                                @Override
+                                public void onSuccess(String message) {
+
+                                }
+
+                                @Override
+                                public void onError(String error) {
+
+                                }
+                            });
                         }
                     } else {
-                        List<CartDetail> cartDetails = cartDetailAction.getAllCartDetailByOrder(myCart.CartID);
+                         cartDetailAction.getAllCartDetailByOrder(myCart.CartID, new CartDetailListCallBack() {
+                            @Override
+                            public void onSuccess(List<CartDetail> cartList) {
+                                cartDetails = cartList;
+                            }
+
+                            @Override
+                            public void onError(String error) {
+
+                            }
+                        });
                         for (CartDetail itemReOrder : cartItems) {
                             boolean found = false;
                             for (CartDetail item : cartDetails) {
@@ -151,13 +236,33 @@ public class OrderDetailActivity extends AppCompatActivity {
                                         }
                                     });
                                     double productPrice = product.Price;
-                                    cartDetailAction.updateQuantityReOrder(item.ProductID, item.Quantity + itemReOrder.Quantity, myCart.CartID, (item.Quantity + itemReOrder.Quantity) * productPrice);
+                                    cartDetailAction.updateQuantityReOrder(item.ProductID, item.Quantity + itemReOrder.Quantity, myCart.CartID, (item.Quantity + itemReOrder.Quantity) * productPrice, new MessageCallback() {
+                                        @Override
+                                        public void onSuccess(String message) {
+
+                                        }
+
+                                        @Override
+                                        public void onError(String error) {
+
+                                        }
+                                    });
                                     found = true;
                                     break;
                                 }
                             }
                             if (!found) {
-                                cartDetailAction.addCartDetail(myCart.CartID, itemReOrder.ProductID, itemReOrder.Quantity, itemReOrder.Total);
+                                cartDetailAction.addCartDetail(myCart.CartID, itemReOrder.ProductID, itemReOrder.Quantity, itemReOrder.Total, new MessageCallback() {
+                                    @Override
+                                    public void onSuccess(String message) {
+
+                                    }
+
+                                    @Override
+                                    public void onError(String error) {
+
+                                    }
+                                });
                             }
                         }
                     }

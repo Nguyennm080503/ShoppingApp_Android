@@ -39,7 +39,7 @@ public class OrderManagementAdapter extends RecyclerView.Adapter<OrderManagement
         Cart cart = cartList.get(position);
         holder.orderID.setText(cart.CartID);
         holder.orderDate.setText(cart.OrderDate.toString());
-        holder.totalPrice.setText(String.format("$%.2f", cart.Total));
+        holder.totalPrice.setText(String.format("$%.2f", cart.TotalBill));
         holder.status.setText(getStringStatus(cart.Status));
 
         holder.orderDetail.setOnClickListener(new View.OnClickListener() {

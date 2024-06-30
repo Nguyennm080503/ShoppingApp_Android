@@ -42,7 +42,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             Cart cart = cartList.get(position);
             holder.orderID.setText(String.valueOf(cart.CartID));
             holder.orderDate.setText(cart.OrderDate.toString());
-            holder.totalPrice.setText(String.format("$%.2f", cart.Total));
+            holder.totalPrice.setText(String.format("$%.2f", cart.TotalBill));
             holder.status.setText(getStringStatus(cart.Status));
 
             if (cart.Status == 1) {

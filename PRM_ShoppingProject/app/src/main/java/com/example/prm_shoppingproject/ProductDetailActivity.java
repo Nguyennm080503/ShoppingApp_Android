@@ -21,6 +21,10 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
+import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
+import com.example.prm_shoppingproject.Interface.Cart.CartCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailSumCallBack;
 import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
 import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
@@ -32,9 +36,12 @@ public class ProductDetailActivity extends AppCompatActivity {
     private CartDetailAction cartDetailAction;
     private int productID;
     private Product product;
-    ImageView imageProduct, backHome;
-    AppCompatButton btn_add;
-    TextView nameProduct, price, description;
+    private ImageView imageProduct, backHome;
+    private AppCompatButton btn_add;
+    private TextView nameProduct, price, description;
+    private Cart cartPending, cart;
+    private CartDetail cartDetail;
+    private double sum;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,21 +101,99 @@ public class ProductDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 int productID = product.ProductID;
-                Cart cart = cartAction.getCartPendingByOrderID(accountIDLogin);
+                cartAction.getCartPendingByAccountID(accountIDLogin, new CartCallBack() {
+                    @Override
+                    public void onSuccess(Cart cartLoad) {
+                        cart = cartLoad;
+                    }
+
+                    @Override
+                    public void onError(String error) {
+
+                    }
+                });
                 if(cart.CartID != 0){
-                    CartDetail cartDetail = cartDetailAction.getCartDetailByProductIDPending(productID, cart.CartID);
+                    cartDetailAction.getCartDetailItemStatus(productID, cart.CartID, new CartDetailCallBack() {
+                        @Override
+                        public void onSuccess(CartDetail cartDetailLoad) {
+                            cartDetail = cartDetailLoad;
+                        }
+
+                        @Override
+                        public void onError(String error) {
+
+                        }
+                    });
                     if (cartDetail != null){
-                        cartDetailAction.updateQuantity(productID, 1, cartDetail.OrderID, cartDetail.Quantity,product.Price * (cartDetail.Quantity + 1));
+                        cartDetailAction.updateQuantity(productID, 1, cartDetail.OrderID, cartDetail.Quantity, product.Price * (cartDetail.Quantity + 1), new MessageCallback() {
+                            @Override
+                            public void onSuccess(String message) {
+
+                            }
+
+                            @Override
+                            public void onError(String error) {
+
+                            }
+                        });
                         calculateTotalPrice(cartAction, accountIDLogin, cartDetailAction, cartDetail.OrderID);
                     }else{
-                        Cart cartPending = cartAction.getCartPendingByOrderID(accountIDLogin);
-                        cartDetailAction.addCartDetail(cartPending.CartID, productID, 1, product.Price * 1);
+                        cartAction.getCartPendingByAccountID(accountIDLogin, new CartCallBack() {
+                            @Override
+                            public void onSuccess(Cart cart) {
+                                cartPending = cart;
+                            }
+
+                            @Override
+                            public void onError(String error) {
+
+                            }
+                        });
+                        cartDetailAction.addCartDetail(cartPending.CartID, productID, 1, product.Price * 1, new MessageCallback() {
+                            @Override
+                            public void onSuccess(String message) {
+
+                            }
+
+                            @Override
+                            public void onError(String error) {
+
+                            }
+                        });
                     }
                 }
                 else{
-                    cartAction.addCart(accountIDLogin, (product.Price * 1) + 2 ,"", 0);
-                    Cart cartPending = cartAction.getCartPendingByOrderID(accountIDLogin);
-                    cartDetailAction.addCartDetail(cartPending.CartID, productID, 1, product.Price * 1);
+                    cartAction.addCart(accountIDLogin, (product.Price * 1) + 2 , "", new MessageCallback() {
+                        @Override
+                        public void onSuccess(String message) {
+                            cartAction.getCartPendingByAccountID(accountIDLogin, new CartCallBack() {
+                                @Override
+                                public void onSuccess(Cart cart) {
+                                    cartPending = cart;
+                                }
+
+                                @Override
+                                public void onError(String error) {
+
+                                }
+                            });
+                            cartDetailAction.addCartDetail(cartPending.CartID, productID, 1, product.Price * 1, new MessageCallback() {
+                                @Override
+                                public void onSuccess(String message) {
+
+                                }
+
+                                @Override
+                                public void onError(String error) {
+
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                        }
+                    });
                 }
                 Toast.makeText(ProductDetailActivity.this, "Product added to cart", Toast.LENGTH_SHORT).show();
             }
@@ -116,7 +201,27 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
     
     private void calculateTotalPrice(CartAction cartAction, int accountIDLogin, CartDetailAction cartDetailAction, int orderID) {
-        double sum = cartDetailAction.sumTotalPriceInOrder(orderID);
-        cartAction.updateTotalCart(accountIDLogin, sum + 2);
+        cartDetailAction.sumTotalPriceInOrder(orderID, new CartDetailSumCallBack() {
+            @Override
+            public void onSuccess(double sumLoad) {
+                sum = sumLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
+        cartAction.updateTotalCart(accountIDLogin, sum + 2, new MessageCallback() {
+            @Override
+            public void onSuccess(String message) {
+
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
     }
 }

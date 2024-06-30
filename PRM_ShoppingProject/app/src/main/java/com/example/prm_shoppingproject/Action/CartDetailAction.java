@@ -6,22 +6,42 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.prm_shoppingproject.DatabaseHelper;
+import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
+import com.example.prm_shoppingproject.Interface.Cart.CartCallBack;
+import com.example.prm_shoppingproject.Interface.Cart.CartListCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailListCallBack;
+import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailSumCallBack;
 import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CartDetailAction {
-    private DatabaseHelper openHelper;
-    private SQLiteDatabase database;
     private static CartDetailAction instance;
+    private Context context;
+    private static final String BASE_URL = "http://10.0.2.2:5265/api";
 
     public CartDetailAction(Context context) {
-        this.openHelper = new DatabaseHelper(context);
+        this.context = context;
     }
 
     public static CartDetailAction getInstance(Context context) {
@@ -31,144 +51,264 @@ public class CartDetailAction {
         return instance;
     }
 
-    public void open() {
-        this.database = openHelper.getWritableDatabase();
-    }
+    public void addCartDetail(int orderID, int productID, int quantity, double total, final MessageCallback callback) {
+        String url = BASE_URL + "/cartdetail/create";
+        JSONObject jsonObject = new JSONObject();
 
-    public void close() {
-        if (database != null) {
-            this.database.close();
-        }
-    }
-
-    public SQLiteDatabase getDatabase() {
-        return database;
-    }
-
-    public void addCartDetail(int orderID, int productID, int quantity, double total) {
-
-        SQLiteDatabase db = openHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("OrderID", orderID);
-        values.put("ProductID", productID);
-        values.put("Quantity", quantity);
-        values.put("Total", total);
-        db.insert("CartDetail", null, values);
-        db.close();
-    }
-
-    public List<CartDetail> getAllCartDetailByOrder(int orderID) {
-        SQLiteDatabase db = openHelper.getReadableDatabase();
-        List<CartDetail> cartdetailList = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT * FROM CartDetail Where OrderID = ?", new String[]{String.valueOf(orderID)});
-
-        if (cursor.moveToFirst()) {
-            do {
-                @SuppressLint("Range") int cartDetailID = cursor.getInt(cursor.getColumnIndex("CartDetailID"));
-                @SuppressLint("Range") int orderdbID  = cursor.getInt(cursor.getColumnIndex("OrderID"));
-                @SuppressLint("Range") int productID = cursor.getInt(cursor.getColumnIndex("ProductID"));
-                @SuppressLint("Range") int quantity = cursor.getInt(cursor.getColumnIndex("Quantity"));
-                @SuppressLint("Range") double total = cursor.getDouble(cursor.getColumnIndex("Total"));
-
-                CartDetail cartDetail = new CartDetail(cartDetailID, orderdbID, productID, quantity, total);
-                cartdetailList.add(cartDetail);
-            } while (cursor.moveToNext());
+        try {
+            jsonObject.put("orderID", orderID);
+            jsonObject.put("productID", productID);
+            jsonObject.put("quantity", quantity);
+            jsonObject.put("unitPrice", total);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            callback.onError("JSON error: " + e.getMessage());
+            return;
         }
 
-        cursor.close();
-        db.close();
-        return cartdetailList;
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject object = new JSONObject(response);
+                            if (object.has("statusCode") && object.getInt("statusCode") == 400) {
+                                String message = object.getString("message");
+                                callback.onError(message);
+                            } else {
+                                callback.onSuccess("Create new cart detail successfully!");
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            callback.onError("Response parsing error: " + e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        callback.onError("Volley error: " + error.getMessage());
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json; charset=UTF-8");
+                return headers;
+            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                return jsonObject.toString().getBytes();
+            }
+        };
+
+        Volley.newRequestQueue(context).add(stringRequest);
     }
+    public void getAllCartDetailByOrder(int orderID, final CartDetailListCallBack callBack) {
+        String url = BASE_URL + "/cartdetail/all/" + orderID;
 
-    public CartDetail getCartDetailItemStatus(int orderId, int productId) {
-        SQLiteDatabase db = openHelper.getReadableDatabase();
-        CartDetail cartDetail = new CartDetail();
-        Cursor cursor = db.rawQuery("SELECT * FROM CartDetail Where OrderID = ? And ProductID = ?", new String[]{String.valueOf(orderId), String.valueOf(productId)});
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        try {
+                            List<CartDetail> cartList = new ArrayList<>();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject cartObject = response.getJSONObject(i);
+                                CartDetail cart = new CartDetail();
+                                cart.setCartDetailID(cartObject.getInt("cartDetailID"));
+                                cart.setOrderID(cartObject.getInt("cartID"));
+                                cart.setQuantity(cartObject.getInt("quantity"));
+                                cart.setProductID(cartObject.getInt("productID"));
+                                cart.setTotal(cartObject.getDouble("unitPrice"));
+                                cartList.add(cart);
+                            }
+                            callBack.onSuccess(cartList);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            callBack.onError("Response parsing error: " + e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        callBack.onError("Volley error: " + error.getMessage());
+                    }
+                });
 
-        if (cursor.moveToFirst()) {
-                @SuppressLint("Range") int cartDetailID = cursor.getInt(cursor.getColumnIndex("CartDetailID"));
-                @SuppressLint("Range") int orderdbID  = cursor.getInt(cursor.getColumnIndex("OrderID"));
-                @SuppressLint("Range") int productID = cursor.getInt(cursor.getColumnIndex("ProductID"));
-                @SuppressLint("Range") int quantity = cursor.getInt(cursor.getColumnIndex("Quantity"));
-                @SuppressLint("Range") double total = cursor.getDouble(cursor.getColumnIndex("Total"));
-
-                cartDetail = new CartDetail(cartDetailID, orderdbID, productID, quantity, total);
-        }
-
-        cursor.close();
-        db.close();
-        return cartDetail;
+        Volley.newRequestQueue(context).add(jsonArrayRequest);
     }
+    public void getCartDetailItemStatus(int orderId, int productId, final CartDetailCallBack callback) {
+        String url = BASE_URL + "/cartdetail/all/" + orderId + "/detail/" + productId;
 
-    public CartDetail getCartDetailByProductIDPending(int productId, int cartID) {
-        SQLiteDatabase db = openHelper.getReadableDatabase();
-        CartDetail cartDetail = new CartDetail();
-        Cursor cursor = db.rawQuery("SELECT * FROM CartDetail Where ProductID = ? And OrderID = ?", new String[]{String.valueOf(productId), String.valueOf(cartID)});
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            CartDetail cart = new CartDetail();
+                            cart.setCartDetailID(response.getInt("cartDetailID"));
+                            cart.setOrderID(response.getInt("cartID"));
+                            cart.setQuantity(response.getInt("quantity"));
+                            cart.setProductID(response.getInt("productID"));
+                            cart.setTotal(response.getDouble("unitPrice"));
 
-        if (cursor.moveToFirst()) {
-            @SuppressLint("Range") int cartDetailID = cursor.getInt(cursor.getColumnIndex("CartDetailID"));
-            @SuppressLint("Range") int orderdbID  = cursor.getInt(cursor.getColumnIndex("OrderID"));
-            @SuppressLint("Range") int productID = cursor.getInt(cursor.getColumnIndex("ProductID"));
-            @SuppressLint("Range") int quantity = cursor.getInt(cursor.getColumnIndex("Quantity"));
-            @SuppressLint("Range") double total = cursor.getDouble(cursor.getColumnIndex("Total"));
+                            callback.onSuccess(cart);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            callback.onError("Response parsing error: " + e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        callback.onError("Volley error: " + error.getMessage());
+                    }
+                });
 
-            cartDetail = new CartDetail(cartDetailID, orderdbID, productID, quantity, total);
-        }
-
-        cursor.close();
-        db.close();
-        return cartDetail;
+        Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
+    public void sumTotalPriceInOrder(int orderId, final CartDetailSumCallBack callback) {
+        String url = BASE_URL + "/cartdetail/all/" + orderId + "/sum";
 
-    @SuppressLint("Range")
-    public double sumTotalPriceInOrder(int orderId) {
-        SQLiteDatabase db = openHelper.getReadableDatabase();
-        double total = 0;
-        Cursor cursor = db.rawQuery("SELECT SUM(Total) as TotalSum FROM CartDetail WHERE OrderID = ? ", new String[]{String.valueOf(orderId)});
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            double sum = response.getDouble("sum");
+                            callback.onSuccess(sum);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            callback.onError("JSON parsing error: " + e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        callback.onError("Volley error: " + error.getMessage());
+                    }
+                });
 
-        if (cursor.moveToFirst()) {
-            total = cursor.getDouble(cursor.getColumnIndex("TotalSum"));
-        }
-        cursor.close();
-        db.close();
-        return total;
+        Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
-
-
-    public void updateQuantity(int productID, int quantityStatus, int orderID, int quantity, double total) {
-        SQLiteDatabase db = openHelper.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
+    public void updateQuantity(int productID, int quantityStatus, int orderID, int quantity, double total, final MessageCallback callback) {
+        String url = BASE_URL + "/cartdetail/update/";
+        int new_quantity = 0;
         if(quantityStatus == 1){
-            values.put("Quantity", quantity + 1);
-            values.put("Total", total);
+            new_quantity = quantity + 1;
         }else{
-            values.put("Quantity", quantity - 1);
-            values.put("Total", total);
+            new_quantity = quantity - 1;
+        }
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("cartID", orderID);
+            jsonBody.put("productID", productID);
+            jsonBody.put("quantity", new_quantity);
+            jsonBody.put("unitPrice", total);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
-        db.update("CartDetail", values, "OrderID = ? And ProductID = ?", new String[]{String.valueOf(orderID), String.valueOf(productID)});
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        callback.onSuccess("Update successfully!");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        callback.onError("Volley error: " + error.getMessage());
+                    }
+                });
 
-        db.close();
+        Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
+    public void deleteCartDetail(int productID, int orderID, final MessageCallback callback) {
+        String url = BASE_URL + "/cartdetail/delete";
 
-    public void deleteCartDetail(int productID, int orderID) {
-        SQLiteDatabase db = openHelper.getWritableDatabase();
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("cartID", orderID);
+            jsonObject.put("productID", productID);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            callback.onError("JSON error: " + e.getMessage());
+            return;
+        }
 
-        db.delete("CartDetail", "OrderID = ? AND ProductID = ?", new String[]{String.valueOf(orderID), String.valueOf(productID)});
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if (response.has("statusCode") && response.getInt("statusCode") == 400) {
+                                String message = response.getString("message");
+                                callback.onError(message);
+                            } else {
+                                callback.onSuccess("Deleted cart successfully!");
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            callback.onError("Response parsing error: " + e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        callback.onError("Volley error: " + error.getMessage());
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json; charset=UTF-8");
+                return headers;
+            }
+        };
 
-        db.close();
+        Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
+    public void updateQuantityReOrder(int productID, int orderID, int quantity, double total, final MessageCallback callback) {
+        String url = BASE_URL + "/cartdetail/update/";
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("cartID", orderID);
+            jsonBody.put("productID", productID);
+            jsonBody.put("quantity", quantity);
+            jsonBody.put("unitPrice", total);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-    public void updateQuantityReOrder(int productID, int orderID, int quantity, double total) {
-        SQLiteDatabase db = openHelper.getWritableDatabase();
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        callback.onSuccess("Update successfully!");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        callback.onError("Volley error: " + error.getMessage());
+                    }
+                });
 
-        ContentValues values = new ContentValues();
-        values.put("Quantity", quantity);
-        values.put("Total", total);
-
-        db.update("CartDetail", values, "OrderID = ? And ProductID = ?", new String[]{String.valueOf(orderID), String.valueOf(productID)});
-
-        db.close();
+        Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
 }

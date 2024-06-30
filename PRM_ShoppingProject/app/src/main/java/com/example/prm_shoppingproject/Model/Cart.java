@@ -6,17 +6,17 @@ public class Cart {
     public int CartID;
     public int AccountID;
     public String OrderDate;
-    public double Total;
+    public double TotalBill;
     public String Address;
     public int Status;
 
     public List<CartDetail> CartDetail;
 
-    public Cart(int cartID, int accountID, String orderDate, double total, String address, int status) {
+    public Cart(int cartID, int accountID, String orderDate, double totalBill, String address, int status) {
         CartID = cartID;
         AccountID = accountID;
         OrderDate = orderDate;
-        Total = total;
+        TotalBill = totalBill;
         Address = address;
         Status = status;
     }
@@ -64,12 +64,12 @@ public class Cart {
         OrderDate = orderDate;
     }
 
-    public double getTotal() {
-        return Total;
+    public double getTotalBill() {
+        return TotalBill;
     }
 
-    public void setTotal(double total) {
-        Total = total;
+    public void setTotalBill(double totalBill) {
+        TotalBill = totalBill;
     }
 
     public String getAddress() {

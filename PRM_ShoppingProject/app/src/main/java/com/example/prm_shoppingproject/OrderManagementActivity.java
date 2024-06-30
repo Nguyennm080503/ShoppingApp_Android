@@ -6,10 +6,13 @@ import android.view.View;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm_shoppingproject.Action.CartAction;
+import com.example.prm_shoppingproject.Interface.Cart.CartCallBack;
+import com.example.prm_shoppingproject.Interface.Cart.CartListCallBack;
 import com.example.prm_shoppingproject.Model.Cart;
 
 import java.util.List;
@@ -30,7 +33,17 @@ public class OrderManagementActivity extends AppCompatActivity {
         recyclerViewOrders.setLayoutManager(new LinearLayoutManager(this));
         cartAction = new CartAction(OrderManagementActivity.this);
         backHome = findViewById(R.id.back_home);
-        cartList = cartAction.getAllCartByAccount(1);
+
+        cartAction.getAllCartByAccount(1, new CartListCallBack() {
+            @Override
+            public void onSuccess(List<Cart> cartListLoad) {
+                cartList = cartListLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+            }
+        });
 
 
         orderAdapter = new OrderManagementAdapter(this, cartList);
