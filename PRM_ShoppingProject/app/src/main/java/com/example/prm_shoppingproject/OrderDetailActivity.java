@@ -22,6 +22,7 @@ import com.example.prm_shoppingproject.Action.AccountAction;
 import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
+import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
 import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
 import com.example.prm_shoppingproject.Model.CartProduct;
@@ -37,6 +38,7 @@ public class OrderDetailActivity extends AppCompatActivity {
     private List<CartProduct> productCartList;
     private CartDetailAction cartDetailAction;
     private CartAction cartAction;
+    private Product product;
     private AppCompatButton cancel;
     private TextView totalPrice, total, address;
 
@@ -81,7 +83,16 @@ public class OrderDetailActivity extends AppCompatActivity {
         productCartList = new ArrayList<>();
         for (CartDetail item: cartItems) {
             CartProduct cartProduct = new CartProduct();
-            Product product = productAction.GetProductByID(item.ProductID);
+            productAction.GetProductByID(item.ProductID, new ProductCallBack() {
+                @Override
+                public void onSuccess(Product productLoad) {
+                    product = productLoad;
+                }
+
+                @Override
+                public void onError(String error) {
+                }
+            });
             cartProduct.Price = product.Price * item.Quantity;
             cartProduct.Image = product.Image;
             cartProduct.ProductName = product.Name;
@@ -129,7 +140,17 @@ public class OrderDetailActivity extends AppCompatActivity {
                             boolean found = false;
                             for (CartDetail item : cartDetails) {
                                 if (item.ProductID == itemReOrder.ProductID) {
-                                    double productPrice = productAction.GetProductByID(item.ProductID).Price;
+                                    productAction.GetProductByID(item.ProductID, new ProductCallBack() {
+                                        @Override
+                                        public void onSuccess(Product productLoad) {
+                                            product = productLoad;
+                                        }
+
+                                        @Override
+                                        public void onError(String error) {
+                                        }
+                                    });
+                                    double productPrice = product.Price;
                                     cartDetailAction.updateQuantityReOrder(item.ProductID, item.Quantity + itemReOrder.Quantity, myCart.CartID, (item.Quantity + itemReOrder.Quantity) * productPrice);
                                     found = true;
                                     break;

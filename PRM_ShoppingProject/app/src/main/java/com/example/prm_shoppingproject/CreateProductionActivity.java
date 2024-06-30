@@ -19,7 +19,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.prm_shoppingproject.Action.ProductAction;
+import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
 import com.example.prm_shoppingproject.Model.Product;
+import com.example.prm_shoppingproject.Model.ProductCreate;
 import com.example.prm_shoppingproject.Util.ImageUtil;
 
 import java.io.IOException;
@@ -34,6 +36,7 @@ public class CreateProductionActivity extends AppCompatActivity {
     private EditText editTextProductStatus;
     private ImageView imageViewProduct;
     private byte[] imageBytes;
+    private ProductAction productAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +51,7 @@ public class CreateProductionActivity extends AppCompatActivity {
         imageViewProduct = findViewById(R.id.imageViewProduct);
         Button buttonSelectImage = findViewById(R.id.buttonSelectImage);
         Button buttonSaveProduct = findViewById(R.id.buttonSaveProduct);
+        productAction = new ProductAction(CreateProductionActivity.this);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
         }
@@ -114,15 +118,20 @@ public class CreateProductionActivity extends AppCompatActivity {
         int typeID = Integer.parseInt(typeIDString);
         int status = Integer.parseInt(statusString);
 
-        Product product = new Product(0, name, price, imageBytes, description, typeID, status);
+        ProductCreate product = new ProductCreate(0, name, price, imageBytes, description, typeID, status);
 
-        ProductAction productAction = ProductAction.getInstance(this);
-        productAction.open();
-        productAction.addProduct(product.getName(), product.getPrice(), product.getImage(), product.getDescription(), product.getTypeID());
-        productAction.close();
+        productAction.addProduct(product.getName(), product.getPrice(), product.getImage(), product.getDescription(), product.getTypeID(), new MessageCallback() {
+            @Override
+            public void onSuccess(String message) {
+                Toast.makeText(CreateProductionActivity.this, message, Toast.LENGTH_SHORT).show();
+                finish();
+            }
 
+            @Override
+            public void onError(String error) {
+                Toast.makeText(CreateProductionActivity.this, error, Toast.LENGTH_SHORT).show();
+            }
+        });
 
-        Toast.makeText(this, "Product saved successfully", Toast.LENGTH_SHORT).show();
-        finish();
     }
 }

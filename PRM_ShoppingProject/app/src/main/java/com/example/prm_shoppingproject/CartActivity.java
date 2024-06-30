@@ -32,6 +32,8 @@ import com.example.prm_shoppingproject.Action.AccountAction;
 import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
+import com.example.prm_shoppingproject.Interface.Account.AccountCallback;
+import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
 import com.example.prm_shoppingproject.Model.Account;
 import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
@@ -66,6 +68,8 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnQua
     private String accountID;
     private String EphericalKey;
     private String ClientKey;
+    private Account account;
+    private Product product;
 
     private final String Apikey = "pk_test_51PWSgUD9V5NbhcqDuqScwxUf2suaAeJyq5rwTNuX6aLyItUgQewTpxCv6SPaWoAUre5UytqnDAAyLr6kz1wFGnjE00WFU1dNuy";
     private final String ApiSercret = "sk_test_51PWSgUD9V5NbhcqDsI3wIY0o5CdFsN0J4lWd1x7zvIvxAnc8ojBiiB9S87CdvNNh5LSyNZLwhBzsmtnjQEMmtsNV00InidgtcJ";
@@ -105,7 +109,19 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnQua
 
         SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
         int accountIDLogin = sharedPreferences.getInt("accountID", -1);
-        Account account = accountAction.GetAccountByID(accountIDLogin);
+
+        accountAction.getAccountProfile(accountIDLogin, new AccountCallback() {
+            @Override
+            public void onSuccess(Account accountLoad) {
+                Toast.makeText(CartActivity.this, "Account loaded successfully!", Toast.LENGTH_SHORT).show();
+                account = accountLoad;
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(CartActivity.this, error, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         List<CartDetail> cartItems = checkCartPending(accountIDLogin);
         Cart cartOrder = new Cart();
@@ -117,7 +133,16 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnQua
             cartFull.setVisibility(View.VISIBLE);
             for (CartDetail item : cartItems) {
                 CartProduct cartProduct = new CartProduct();
-                Product product = productAction.GetProductByID(item.ProductID);
+                productAction.GetProductByID(item.ProductID, new ProductCallBack() {
+                    @Override
+                    public void onSuccess(Product productLoad) {
+                        product = productLoad;
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                    }
+                });
                 cartProduct.Price = product.Price * item.Quantity;
                 cartProduct.Image = product.Image;
                 cartProduct.ProductName = product.Name;

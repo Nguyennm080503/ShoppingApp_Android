@@ -10,7 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.prm_shoppingproject.Action.AccountAction;
-import com.example.prm_shoppingproject.Model.Account;
+import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -43,21 +43,16 @@ public class RegisterActivity extends AppCompatActivity {
                 String password = passwordEditText.getText().toString().trim();
                 String confirmPassword = confirmPasswordEditText.getText().toString().trim();
 
-                Account account = accountAction.GetUsernameExisted(username);
                 if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                     Toast.makeText(RegisterActivity.this, "Please fill in all fields!", Toast.LENGTH_SHORT).show();
-                }
-                else if(account == null){
-                    Toast.makeText(RegisterActivity.this, "Userame is existed!", Toast.LENGTH_SHORT).show();
-                    performRegistration(name, email, phone, username, password);
-                }
-                else if (!password.equals(confirmPassword)) {
+                } else if (!password.equals(confirmPassword)) {
                     Toast.makeText(RegisterActivity.this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
                 } else {
                     performRegistration(name, email, phone, username, password);
                 }
             }
         });
+
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,15 +62,20 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private void performRegistration(String name ,String email, String phone, String username, String password) {
-        try{
-            accountAction.addAccount(name, email, phone, username, password);
-            Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }catch (Exception ex){
-            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+    private void performRegistration(String name, String email, String phone, String username, String password) {
+        accountAction.addAccount(name, email, phone, username, password, new MessageCallback() {
+            @Override
+            public void onSuccess(String message) {
+                Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(RegisterActivity.this, error, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
