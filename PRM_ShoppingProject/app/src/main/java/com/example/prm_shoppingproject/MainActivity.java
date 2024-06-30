@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
         });
         accountAction = new AccountAction(MainActivity.this);
         typeAction = new TypeAction(MainActivity.this);
-        typeAction.addTypeNameInit();
 
         EditText usernameEditText = findViewById(R.id.username);
         EditText passwordEditText = findViewById(R.id.password);
