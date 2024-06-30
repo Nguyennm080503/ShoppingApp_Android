@@ -48,17 +48,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView"
                 app:layout_constraintVertical_bias="0.416" />
 
-            <ImageView
-                android:id="@+id/notification"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0"
-                app:srcCompat="@drawable/bell" />
 
             <ImageView
                 android:id="@+id/cart"
@@ -68,7 +57,7 @@
                 android:layout_marginEnd="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/notification" />
+                app:layout_constraintEnd_toEndOf="parent"/>
 
             <ImageView
                 android:id="@+id/profile"
@@ -91,9 +80,9 @@
                 app:srcCompat="@android:drawable/ic_notification_overlay" />
 
             <TextView
+                android:id="@+id/number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/ic_notification"
@@ -161,6 +150,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     tools:layout_editor_absoluteX="16dp"
                     tools:layout_editor_absoluteY="16dp"
+                    android:layout_marginStart="10dp"
                     tools:ignore="MissingConstraints" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 

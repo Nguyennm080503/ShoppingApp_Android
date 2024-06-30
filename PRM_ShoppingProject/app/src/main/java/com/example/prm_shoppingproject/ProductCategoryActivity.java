@@ -26,7 +26,7 @@ import com.example.prm_shoppingproject.Model.TypeProduct;
 
 import java.util.List;
 
-public class ProductCategoryActivity extends AppCompatActivity {
+public class ProductCategoryActivity extends AppCompatActivity implements ProductAdapter.OnNumberCartChangeListener{
     private RecyclerView recyclerView;
     private ProductAction productAction;
     private TypeAction typeAction;
@@ -54,7 +54,7 @@ public class ProductCategoryActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         backHome = findViewById(R.id.back_home);
 
-        productAdapter = new ProductAdapter(this, products);
+        productAdapter = new ProductAdapter(this, products, this);
         recyclerView.setAdapter(productAdapter);
 
         backHome.setOnClickListener(new View.OnClickListener() {
@@ -64,5 +64,8 @@ public class ProductCategoryActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    public void onNumberCartChanged(int numberItemInCart){
     }
 }

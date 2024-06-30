@@ -46,7 +46,7 @@ public class OrderActivity extends AppCompatActivity {
         int accountIDLogin = sharedPreferences.getInt("accountID", -1);
         List<Cart> carts = cartAction.getAllCartByAccount(accountIDLogin);
         recyclerView = findViewById(R.id.orderView);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 1));
         backHome = findViewById(R.id.back_home);
         empty = findViewById(R.id.emptyCartMessage);
 

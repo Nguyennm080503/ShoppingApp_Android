@@ -79,4 +79,96 @@ public class CartDetailAction {
         db.close();
         return cartdetailList;
     }
+
+    public CartDetail getCartDetailItemStatus(int orderId, int productId) {
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        CartDetail cartDetail = new CartDetail();
+        Cursor cursor = db.rawQuery("SELECT * FROM CartDetail Where OrderID = ? And ProductID = ?", new String[]{String.valueOf(orderId), String.valueOf(productId)});
+
+        if (cursor.moveToFirst()) {
+                @SuppressLint("Range") int cartDetailID = cursor.getInt(cursor.getColumnIndex("CartDetailID"));
+                @SuppressLint("Range") int orderdbID  = cursor.getInt(cursor.getColumnIndex("OrderID"));
+                @SuppressLint("Range") int productID = cursor.getInt(cursor.getColumnIndex("ProductID"));
+                @SuppressLint("Range") int quantity = cursor.getInt(cursor.getColumnIndex("Quantity"));
+                @SuppressLint("Range") double total = cursor.getDouble(cursor.getColumnIndex("Total"));
+
+                cartDetail = new CartDetail(cartDetailID, orderdbID, productID, quantity, total);
+        }
+
+        cursor.close();
+        db.close();
+        return cartDetail;
+    }
+
+    public CartDetail getCartDetailByProductIDPending(int productId, int cartID) {
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        CartDetail cartDetail = new CartDetail();
+        Cursor cursor = db.rawQuery("SELECT * FROM CartDetail Where ProductID = ? And OrderID = ?", new String[]{String.valueOf(productId), String.valueOf(cartID)});
+
+        if (cursor.moveToFirst()) {
+            @SuppressLint("Range") int cartDetailID = cursor.getInt(cursor.getColumnIndex("CartDetailID"));
+            @SuppressLint("Range") int orderdbID  = cursor.getInt(cursor.getColumnIndex("OrderID"));
+            @SuppressLint("Range") int productID = cursor.getInt(cursor.getColumnIndex("ProductID"));
+            @SuppressLint("Range") int quantity = cursor.getInt(cursor.getColumnIndex("Quantity"));
+            @SuppressLint("Range") double total = cursor.getDouble(cursor.getColumnIndex("Total"));
+
+            cartDetail = new CartDetail(cartDetailID, orderdbID, productID, quantity, total);
+        }
+
+        cursor.close();
+        db.close();
+        return cartDetail;
+    }
+
+    @SuppressLint("Range")
+    public double sumTotalPriceInOrder(int orderId) {
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        double total = 0;
+        Cursor cursor = db.rawQuery("SELECT SUM(Total) as TotalSum FROM CartDetail WHERE OrderID = ? ", new String[]{String.valueOf(orderId)});
+
+        if (cursor.moveToFirst()) {
+            total = cursor.getDouble(cursor.getColumnIndex("TotalSum"));
+        }
+        cursor.close();
+        db.close();
+        return total;
+    }
+
+
+    public void updateQuantity(int productID, int quantityStatus, int orderID, int quantity, double total) {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        if(quantityStatus == 1){
+            values.put("Quantity", quantity + 1);
+            values.put("Total", total);
+        }else{
+            values.put("Quantity", quantity - 1);
+            values.put("Total", total);
+        }
+
+        db.update("CartDetail", values, "OrderID = ? And ProductID = ?", new String[]{String.valueOf(orderID), String.valueOf(productID)});
+
+        db.close();
+    }
+
+    public void deleteCartDetail(int productID, int orderID) {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+
+        db.delete("CartDetail", "OrderID = ? AND ProductID = ?", new String[]{String.valueOf(orderID), String.valueOf(productID)});
+
+        db.close();
+    }
+
+    public void updateQuantityReOrder(int productID, int orderID, int quantity, double total) {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("Quantity", quantity);
+        values.put("Total", total);
+
+        db.update("CartDetail", values, "OrderID = ? And ProductID = ?", new String[]{String.valueOf(orderID), String.valueOf(productID)});
+
+        db.close();
+    }
 }

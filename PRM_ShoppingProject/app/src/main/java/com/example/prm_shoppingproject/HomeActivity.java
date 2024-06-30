@@ -19,21 +19,27 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm_shoppingproject.Action.AccountAction;
+import com.example.prm_shoppingproject.Action.CartAction;
+import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
 import com.example.prm_shoppingproject.Model.Account;
+import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.Product;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements ProductAdapter.OnNumberCartChangeListener {
 
     private RecyclerView recyclerView;
     private AccountAction accountAction;
+    private CartAction cartAction;
+    private CartDetailAction cartDetailAction;
     private ProductAction productAction;
     private ProductAdapter productAdapter;
     private int accountIDLogin;
-    private ImageView cartView, profileView ;
+    private ImageView cartView, profileView, notification;
+    private TextView number_cart;
     private LinearLayout profileScreen, cartScreen, mapScreen, orderScreen, shoeCate, shortCate, tshirtCate, shirtCate,jacketCate;
     private Account account;
     @Override
@@ -54,6 +60,20 @@ public class HomeActivity extends AppCompatActivity {
         List<Product> products = productAction.getAllProducts();
         account = accountAction.GetAccountByID(accountIDLogin);
         TextView name = findViewById(R.id.name);
+        number_cart = findViewById(R.id.number);
+        notification = findViewById(R.id.ic_notification);
+        cartAction = new CartAction(HomeActivity.this);
+        cartDetailAction = new CartDetailAction(HomeActivity.this);
+        Cart cart = cartAction.getCartPendingByOrderID(accountIDLogin);
+        if(cart.CartID == 0){
+            notification.setVisibility(View.GONE);
+            number_cart.setVisibility(View.GONE);
+        }else{
+            int number = cartDetailAction.getAllCartDetailByOrder(cart.CartID).size();
+            number_cart.setText(String.valueOf(number));
+            notification.setVisibility(View.VISIBLE);
+            number_cart.setVisibility(View.VISIBLE);
+        }
         name.setText(account.Name);
         cartView = findViewById(R.id.cart);
         profileView = findViewById(R.id.profile);
@@ -69,7 +89,7 @@ public class HomeActivity extends AppCompatActivity {
         tshirtCate = findViewById(R.id.cate_tshirt);
         jacketCate = findViewById(R.id.cate_jacket);
 
-        productAdapter = new ProductAdapter(this, products);
+        productAdapter = new ProductAdapter(this, products, this);
         recyclerView.setAdapter(productAdapter);
 
         cartView.setOnClickListener(new View.OnClickListener() {
@@ -156,5 +176,11 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    public void onNumberCartChanged(int numberItemInCart){
+        this.notification.setVisibility(View.VISIBLE);
+        this.number_cart.setVisibility(View.VISIBLE);
+        this.number_cart.setText(String.valueOf(numberItemInCart));
     }
 }

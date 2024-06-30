@@ -17,7 +17,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.prm_shoppingproject.Model.CartItem;
+import com.example.prm_shoppingproject.Action.CartAction;
+import com.example.prm_shoppingproject.Action.CartDetailAction;
+import com.example.prm_shoppingproject.Model.Cart;
+import com.example.prm_shoppingproject.Model.CartDetail;
+import com.example.prm_shoppingproject.Model.CartProduct;
 import com.example.prm_shoppingproject.Model.Product;
 
 import java.util.ArrayList;
@@ -27,14 +31,23 @@ import java.util.Set;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
 
+    public interface OnNumberCartChangeListener {
+        void onNumberCartChanged(int numberItemInCart);
+    }
     private Context context;
     private List<Product> productList;
     private SharedPreferences sharedPreferences;
+    private CartAction cartAction;
+    private CartDetailAction cartDetailAction;
 
-    public ProductAdapter(Context context, List<Product> productList) {
+    private OnNumberCartChangeListener onNumberCartChangeListener;
+
+
+    public ProductAdapter(Context context, List<Product> productList, OnNumberCartChangeListener onNumberCartChangeListener) {
         this.context = context;
         this.productList = productList;
         this.sharedPreferences = context.getSharedPreferences("session", Context.MODE_PRIVATE);
+        this.onNumberCartChangeListener = onNumberCartChangeListener;
     }
 
     @NonNull
@@ -49,9 +62,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         Product product = productList.get(position);
         holder.textViewProductName.setText(product.Name);
         holder.textViewProductPrice.setText(String.format("$%.2f", product.Price));
-
+        cartAction = new CartAction(this.context);
+        cartDetailAction = new CartDetailAction(this.context);
         Bitmap bitmap = BitmapFactory.decodeByteArray(product.Image, 0, product.Image.length);
         holder.imageViewProduct.setImageBitmap(bitmap);
+        SharedPreferences sharedPreferences = context.getSharedPreferences("session", Context.MODE_PRIVATE);
+        int accountIDLogin = sharedPreferences.getInt("accountID", -1);
 
         holder.productDetail.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,20 +83,25 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             @Override
             public void onClick(View v) {
                 int productID = product.ProductID;
-                ArrayList<CartItem> cartItems = getCartItems();
-                boolean found = false;
-                for (CartItem item : cartItems) {
-                    if (item.getProductID() == productID) {
-                        item.setQuantity(item.getQuantity() + 1);
-                        found = true;
-                        break;
+                Cart cart = cartAction.getCartPendingByOrderID(accountIDLogin);
+                if(cart.CartID != 0){
+                    CartDetail cartDetail = cartDetailAction.getCartDetailByProductIDPending(productID, cart.CartID);
+                    if (cartDetail != null){
+                        cartDetailAction.updateQuantity(productID, 1, cartDetail.OrderID, cartDetail.Quantity,product.Price * (cartDetail.Quantity + 1));
+                        calculateTotalPrice(cartAction, accountIDLogin, cartDetailAction, cartDetail.OrderID);
+                        notifyNumberCartChanged(cart.CartID);
+                    }else{
+                        Cart cartPending = cartAction.getCartPendingByOrderID(accountIDLogin);
+                        cartDetailAction.addCartDetail(cartPending.CartID, productID, 1, product.Price * 1);
+                        notifyNumberCartChanged(cartPending.CartID);
                     }
                 }
-
-                if (!found) {
-                    cartItems.add(new CartItem(productID, 1));
+                else{
+                    cartAction.addCart(accountIDLogin, (product.Price * 1) + 2 ,"", 0);
+                    Cart cartPending = cartAction.getCartPendingByOrderID(accountIDLogin);
+                    cartDetailAction.addCartDetail(cartPending.CartID, productID, 1, product.Price * 1);
+                    notifyNumberCartChanged(cartPending.CartID);
                 }
-                saveCartItems(cartItems);
                 Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show();
             }
         });
@@ -90,6 +111,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     @Override
     public int getItemCount() {
         return productList.size();
+    }
+
+    private void notifyNumberCartChanged(int cartID) {
+        int numberItemCart = 0;
+        numberItemCart = cartDetailAction.getAllCartDetailByOrder(cartID).size();
+        if (onNumberCartChangeListener != null) {
+            onNumberCartChangeListener.onNumberCartChanged(numberItemCart);
+        }
     }
 
     static class ProductViewHolder extends RecyclerView.ViewHolder {
@@ -111,26 +140,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         }
     }
 
-    private ArrayList<CartItem> getCartItems() {
-        ArrayList<CartItem> cartItems = new ArrayList<>();
-        Set<String> cartSet = sharedPreferences.getStringSet("cart", new HashSet<>());
-        for (String item : cartSet) {
-            String[] parts = item.split(",");
-            if (parts.length == 2) {
-                int productID = Integer.parseInt(parts[0]);
-                int quantity = Integer.parseInt(parts[1]);
-                cartItems.add(new CartItem(productID, quantity));
-            }
-        }
-        return cartItems;
-    }
-
-    private void saveCartItems(ArrayList<CartItem> cartItems) {
-        Set<String> items = new HashSet<>();
-        for (CartItem item : cartItems) {
-            String itemString = item.getProductID() + "," + item.getQuantity();
-            items.add(itemString);
-        }
-        sharedPreferences.edit().putStringSet("cart", items).apply();
+    private void calculateTotalPrice(CartAction cartAction, int accountIDLogin, CartDetailAction cartDetailAction, int orderID) {
+        double sum = cartDetailAction.sumTotalPriceInOrder(orderID);
+        cartAction.updateTotalCart(accountIDLogin, sum + 2);
     }
 }

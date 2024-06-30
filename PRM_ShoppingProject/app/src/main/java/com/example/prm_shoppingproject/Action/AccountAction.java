@@ -68,6 +68,17 @@ public class AccountAction {
         db.close();
     }
 
+    public void updatePassword(int accountId, String password) {
+        SQLiteDatabase db = openHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("Password", password);
+
+        db.update("Account", values, "AccountID = ?", new String[]{String.valueOf(accountId)});
+
+        db.close();
+    }
+
 
     public void AddAdminAccount(){
         Account account = GetAccountIDLogin("admin", "123456");
@@ -145,10 +156,11 @@ public class AccountAction {
             @SuppressLint("Range") String email = cursor.getString(cursor.getColumnIndex("Email"));
             @SuppressLint("Range") String phone = cursor.getString(cursor.getColumnIndex("Phone"));
             @SuppressLint("Range") String username_db = cursor.getString(cursor.getColumnIndex("Username"));
+            @SuppressLint("Range") String password = cursor.getString(cursor.getColumnIndex("Password"));
             @SuppressLint("Range") int roleID = cursor.getInt(cursor.getColumnIndex("RoleID"));
             @SuppressLint("Range") int status = cursor.getInt(cursor.getColumnIndex("Status"));
 
-            account = new Account(accountID, name, email, phone, username_db, "", roleID, status);
+            account = new Account(accountID, name, email, phone, username_db, password, roleID, status);
         }
 
 

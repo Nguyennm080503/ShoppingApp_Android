@@ -3,28 +3,19 @@ package com.example.prm_shoppingproject;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm_shoppingproject.Model.Cart;
-import com.example.prm_shoppingproject.Model.CartItem;
-import com.example.prm_shoppingproject.Model.Product;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder> {
 
@@ -41,27 +32,44 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     @NonNull
     @Override
     public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order, parent, false);
         return new OrderViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
-        Cart cart = cartList.get(position);
-        holder.orderID.setText(cart.CartID);
-        holder.orderDate.setText(cart.OrderDate.toString());
-        holder.totalPrice.setText(String.format("$%.2f", cart.Total));
-        holder.status.setText(getStringStatus(cart.Status));
+        try{
+            Cart cart = cartList.get(position);
+            holder.orderID.setText(String.valueOf(cart.CartID));
+            holder.orderDate.setText(cart.OrderDate.toString());
+            holder.totalPrice.setText(String.format("$%.2f", cart.Total));
+            holder.status.setText(getStringStatus(cart.Status));
 
-        holder.orderDetail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int orderID = cart.CartID;
-                Intent intent = new Intent(context, ProductDetailActivity.class);
-                intent.putExtra("cartID", orderID);
-                context.startActivity(intent);
+            if (cart.Status == 1) {
+                holder.status.setTextColor(context.getResources().getColor(R.color.green));
+            } else if(cart.Status == 2)  {
+                holder.status.setTextColor(context.getResources().getColor(R.color.red));
+            } else if(cart.Status == 3){
+                holder.status.setTextColor(context.getResources().getColor(R.color.orange));
+            } else if(cart.Status == 4){
+                holder.status.setTextColor(context.getResources().getColor(R.color.blue));
             }
-        });
+            else if(cart.Status == 5){
+                holder.status.setTextColor(context.getResources().getColor(R.color.black));
+            }
+
+            holder.orderDetail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int orderID = cart.CartID;
+                    Intent intent = new Intent(context, OrderDetailActivity.class);
+                    intent.putExtra("cartID", orderID);
+                    context.startActivity(intent);
+                }
+            });
+        }catch (Exception ex){
+            Log.d(String.valueOf(this.context), ex.toString());
+        }
     }
 
     @Override

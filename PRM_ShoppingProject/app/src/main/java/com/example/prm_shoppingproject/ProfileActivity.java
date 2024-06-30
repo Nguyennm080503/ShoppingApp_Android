@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -21,7 +22,7 @@ import com.example.prm_shoppingproject.Model.Account;
 public class ProfileActivity extends AppCompatActivity {
     private AccountAction accountAction;
     private Account account;
-    private Button btn_logout;
+    private AppCompatButton btn_logout, btn_change;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,7 @@ public class ProfileActivity extends AppCompatActivity {
         TextView status = findViewById(R.id.status);
         ImageView backHome = findViewById(R.id.back_home);
         btn_logout = findViewById(R.id.btnLogout);
+        btn_change = findViewById(R.id.btnChange);
         SharedPreferences sharedPreferences = getSharedPreferences("session", Context.MODE_PRIVATE);
         int accountIDLogin = sharedPreferences.getInt("accountID", -1);
         account = accountAction.GetAccountByID(accountIDLogin);
@@ -67,6 +69,14 @@ public class ProfileActivity extends AppCompatActivity {
                 editor.clear();
                 editor.apply();
                 Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btn_change.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ProfileActivity.this, ChangePasswordActivity.class);
                 startActivity(intent);
             }
         });
