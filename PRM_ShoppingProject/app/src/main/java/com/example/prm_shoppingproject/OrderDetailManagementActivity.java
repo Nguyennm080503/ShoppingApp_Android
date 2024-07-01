@@ -100,7 +100,7 @@ public class OrderDetailManagementActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(Product productLoad) {
                             product = productLoad;
-                            cartProduct.Price = product.Price * item.Quantity;
+                            cartProduct.PriceTotal = product.Price * item.Quantity;
                             cartProduct.Image = product.Image;
                             cartProduct.ProductName = product.Name;
                             cartProduct.Quantity = item.Quantity;

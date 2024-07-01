@@ -106,7 +106,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Ship - 30.000 VNĐ"
+                    android:text="Ship - 2$"
                     style="@style/textStyle"
                     app:layout_constraintEnd_toEndOf="@id/totalPrice"
                     app:layout_constraintTop_toBottomOf="@id/totalPrice"/>

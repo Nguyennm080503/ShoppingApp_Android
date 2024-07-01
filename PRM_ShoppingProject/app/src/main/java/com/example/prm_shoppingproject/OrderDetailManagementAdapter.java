@@ -46,7 +46,7 @@ public class OrderDetailManagementAdapter extends RecyclerView.Adapter<OrderDeta
         try {
             CartProduct cartProduct = productCartList.get(position);
             holder.textViewProductName.setText(cartProduct.ProductName);
-            holder.textViewProductPrice.setText(String.format("$%.2f", cartProduct.Price));
+            holder.textViewProductPrice.setText(String.format("$%.2f", cartProduct.PriceTotal));
             holder.quantity.setText(String.valueOf(cartProduct.Quantity));
             productAction = new ProductAction(this.context);
             cartAction = new CartAction(this.context);

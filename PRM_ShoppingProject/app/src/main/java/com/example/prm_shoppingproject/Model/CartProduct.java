@@ -2,17 +2,21 @@ package com.example.prm_shoppingproject.Model;
 
 public class CartProduct {
     public int ProductID;
+    public int OrderID;
     public String Image;
     public String ProductName;
     public int Quantity;
-    public double Price;
+    public double PriceProduct;
+    public double PriceTotal;
 
-    public CartProduct(int productID, String image, String productName, int quantity, double price) {
+    public CartProduct(int productID, int orderID, String image, String productName, int quantity, double priceProduct, double priceTotal) {
         ProductID = productID;
+        OrderID = orderID;
         Image = image;
         ProductName = productName;
         Quantity = quantity;
-        Price = price;
+        PriceTotal = priceTotal;
+        PriceProduct = priceProduct;
     }
 
     public CartProduct() {
@@ -24,6 +28,14 @@ public class CartProduct {
 
     public void setProductID(int productID) {
         ProductID = productID;
+    }
+
+    public int getOrderID() {
+        return OrderID;
+    }
+
+    public void setOrderID(int orderID) {
+        OrderID = orderID;
     }
 
     public String getImage() {
@@ -50,11 +62,19 @@ public class CartProduct {
         Quantity = quantity;
     }
 
-    public double getPrice() {
-        return Price;
+    public double getPriceProduct() {
+        return PriceProduct;
     }
 
-    public void setPrice(double price) {
-        Price = price;
+    public void setPriceProduct(double priceProduct) {
+        PriceProduct = priceProduct;
+    }
+
+    public double getPriceTotal() {
+        return PriceTotal;
+    }
+
+    public void setPriceTotal(double priceTotal) {
+        PriceTotal = priceTotal;
     }
 }

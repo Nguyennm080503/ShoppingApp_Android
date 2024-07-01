@@ -9,22 +9,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
-import com.example.prm_shoppingproject.Action.ProductAction;
-import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
 import com.example.prm_shoppingproject.Interface.Cart.CartCallBack;
 import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailCallBack;
-import com.example.prm_shoppingproject.Interface.CartDetail.CartDetailSumCallBack;
-import com.example.prm_shoppingproject.Interface.Product.ProductCallBack;
+import com.example.prm_shoppingproject.Interface.Account.MessageCallback;
 import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.CartDetail;
 import com.example.prm_shoppingproject.Model.CartProduct;
-import com.example.prm_shoppingproject.Model.Product;
 import com.example.prm_shoppingproject.Util.ImageUtil;
 
 import java.util.List;
@@ -41,13 +38,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
     private Context context;
     private List<CartProduct> productCartList;
-    private ProductAction productAction;
     private CartAction cartAction;
     private CartDetailAction cartDetailAction;
     private OnQuantityChangeListener onQuantityChangeListener;
     private OnCartEmptyListener onCartEmptyListener;
     private Cart cart;
-    private double sum;
 
     public CartAdapter(Context context, List<CartProduct> productCartList,
                        OnQuantityChangeListener onQuantityChangeListener,
@@ -56,7 +51,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         this.productCartList = productCartList;
         this.onQuantityChangeListener = onQuantityChangeListener;
         this.onCartEmptyListener = onCartEmptyListener;
-        productAction = new ProductAction(context);
         cartAction = new CartAction(context);
         cartDetailAction = new CartDetailAction(context);
     }
@@ -102,7 +96,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
         public void bind(CartProduct cartProduct) {
             textViewProductName.setText(cartProduct.ProductName);
-            textViewProductPrice.setText(String.format("$%.2f", cartProduct.Price));
+            textViewProductPrice.setText(String.format("$%.2f", cartProduct.PriceTotal));
             quantity.setText(String.valueOf(cartProduct.Quantity));
 
             // Load product image asynchronously
@@ -126,7 +120,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 updateCartDetail(cartProduct, change);
 
                 // Update price and notify listeners
-                double newPrice = cartProduct.Price * newQuantity;
+                double newPrice = cartProduct.PriceProduct * newQuantity;
                 textViewProductPrice.setText(String.format("$%.2f", newPrice));
                 notifyQuantityChanged();
             }
@@ -142,45 +136,101 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                     cartDetailAction.getCartDetailItemStatus(cart.CartID, cartProduct.ProductID, new CartDetailCallBack() {
                         @Override
                         public void onSuccess(CartDetail cartDetailLoad) {
-                            cartDetailAction.updateQuantity(cartDetailLoad.ProductID, change, cartDetailLoad.OrderID, cartDetailLoad.Quantity, cartProduct.Price * cartProduct.Quantity, new MessageCallback() {
+                            cartDetailAction.updateQuantity(cartDetailLoad.ProductID, change, cartDetailLoad.OrderID, cartDetailLoad.Quantity, cartProduct.PriceProduct * cartProduct.Quantity, new MessageCallback() {
                                 @Override
                                 public void onSuccess(String message) {
+                                    // Optional: Show success message
+                                    cartAction.updateTotalCart(cartDetailLoad.OrderID, new MessageCallback() {
+                                        @Override
+                                        public void onSuccess(String message) {
+                                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                                        }
+                                        @Override
+                                        public void onError(String error) {
+
+                                        }
+                                    });
                                 }
 
                                 @Override
                                 public void onError(String error) {
+                                    // Optional: Show error message
+                                    cartAction.updateTotalCart(cartDetailLoad.OrderID, new MessageCallback() {
+                                        @Override
+                                        public void onSuccess(String message) {
+                                            Toast.makeText(context, "Update product cart successfully!", Toast.LENGTH_SHORT).show();
+                                        }
+                                        @Override
+                                        public void onError(String error) {
+
+                                        }
+                                    });
                                 }
                             });
                         }
 
                         @Override
                         public void onError(String error) {
+                            // Optional: Show error message
+                            Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
 
                 @Override
                 public void onError(String error) {
+                    // Optional: Show error message
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
                 }
             });
         }
 
         private void removeCartItem(int position, CartProduct cartProduct) {
-            int cartID = cart != null ? cart.CartID : 0;
-            cartDetailAction.deleteCartDetail(cartID, cartProduct.ProductID, new MessageCallback() {
+            cartDetailAction.deleteCartDetail(cartProduct.OrderID, cartProduct.ProductID, new MessageCallback() {
                 @Override
                 public void onSuccess(String message) {
                     productCartList.remove(position);
                     notifyItemRemoved(position);
                     notifyQuantityChanged();
+                    if(productCartList.isEmpty()){
+                        cartAction.deleteCart(cartProduct.OrderID, new MessageCallback() {
+                            @Override
+                            public void onSuccess(String message) {
+                                if (productCartList.isEmpty() && onCartEmptyListener != null) {
+                                    onCartEmptyListener.onCartEmpty();
+                                }
+                            }
 
-                    if (productCartList.isEmpty() && onCartEmptyListener != null) {
-                        onCartEmptyListener.onCartEmpty();
+                            @Override
+                            public void onError(String error) {
+
+                            }
+                        });
                     }
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onError(String error) {
+                    productCartList.remove(position);
+                    notifyItemRemoved(position);
+                    notifyQuantityChanged();
+                    if(productCartList.isEmpty()){
+                        cartAction.deleteCart(cartProduct.OrderID, new MessageCallback() {
+                            @Override
+                            public void onSuccess(String message) {
+                                if (productCartList.isEmpty() && onCartEmptyListener != null) {
+                                    onCartEmptyListener.onCartEmpty();
+                                }
+                            }
+
+                            @Override
+                            public void onError(String error) {
+
+                            }
+                        });
+                    }
+                    Toast.makeText(context, "Delete item successfully!", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -189,7 +239,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private void notifyQuantityChanged() {
         double totalPrice = 0;
         for (CartProduct item : productCartList) {
-            totalPrice += item.Quantity * item.Price;
+            totalPrice += item.Quantity * item.PriceProduct;
         }
         if (onQuantityChangeListener != null) {
             onQuantityChangeListener.onQuantityChanged(totalPrice);

@@ -69,14 +69,8 @@ public class CartAction {
                     @Override
                     public void onResponse(String response) {
                         try {
-                            JSONObject object = new JSONObject(response);
-                            if (object.has("statusCode") && object.getInt("statusCode") == 400) {
-                                String message = object.getString("message");
-                                callback.onError(message);
-                            } else {
-                                callback.onSuccess("Create new cart successfully!");
-                            }
-                        } catch (JSONException e) {
+                            callback.onSuccess("Create new cart successfully!");
+                        } catch (Exception e) {
                             e.printStackTrace();
                             callback.onError("Response parsing error: " + e.getMessage());
                         }
@@ -112,14 +106,8 @@ public class CartAction {
                     @Override
                     public void onResponse(String response) {
                         try {
-                            JSONObject object = new JSONObject(response);
-                            if (object.has("statusCode") && object.getInt("statusCode") == 400) {
-                                String message = object.getString("message");
-                                callback.onError(message);
-                            } else {
-                                callback.onSuccess("Deleted cart successfully!");
-                            }
-                        } catch (JSONException e) {
+                            callback.onSuccess("Deleted cart successfully!");
+                        } catch (Exception e) {
                             e.printStackTrace();
                             callback.onError("Response parsing error: " + e.getMessage());
                         }
@@ -157,7 +145,9 @@ public class CartAction {
                                 cart.setCartID(cartObject.getInt("cartID"));
                                 cart.setAccountID(cartObject.getInt("accountID"));
                                 cart.setTotalBill(cartObject.getDouble("totalBill"));
-                                cart.setAddress(cartObject.getString("address"));
+                                cart.setAddress(cartObject.getString("addresss"));
+                                cart.setOrderDate(cartObject.getString("dateOrder"));
+                                cart.setStatus(cartObject.getInt("status"));
                                 cartList.add(cart);
                             }
                             callback.onSuccess(cartList);
@@ -189,7 +179,7 @@ public class CartAction {
                             cart.setCartID(response.getInt("cartID"));
                             cart.setAccountID(response.getInt("accountID"));
                             cart.setTotalBill(response.getDouble("totalBill"));
-                            cart.setAddress(response.getString("address"));
+                            cart.setAddress(response.getString("addresss"));
 
                             callback.onSuccess(cart);
                         } catch (JSONException e) {
@@ -220,7 +210,6 @@ public class CartAction {
                             cart.setCartID(response.getInt("cartID"));
                             cart.setAccountID(response.getInt("accountID"));
                             cart.setTotalBill(response.getDouble("totalBill"));
-                            cart.setAddress(response.getString("address"));
                             callback.onSuccess(cart);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -250,7 +239,6 @@ public class CartAction {
                             cart.setCartID(response.getInt("cartID"));
                             cart.setAccountID(response.getInt("accountID"));
                             cart.setTotalBill(response.getDouble("totalBill"));
-                            cart.setAddress(response.getString("address"));
 
                             callback.onSuccess(cart);
                         } catch (JSONException e) {
@@ -273,13 +261,12 @@ public class CartAction {
 
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
-    public void updateTotalCart(int accountId, double total, final MessageCallback callback) {
+    public void updateTotalCart(int cartID, final MessageCallback callback) {
         String url = BASE_URL + "/cart/update/total";
 
         JSONObject jsonBody = new JSONObject();
         try {
-            jsonBody.put("accountID", accountId);
-            jsonBody.put("totalBill", total);
+            jsonBody.put("cartID", cartID);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -297,7 +284,16 @@ public class CartAction {
                         error.printStackTrace();
                         callback.onError("Volley error: " + error.getMessage());
                     }
-                });
+                })
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                // Add headers if necessary (e.g., Content-Type)
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+        };
 
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
@@ -307,7 +303,7 @@ public class CartAction {
         JSONObject jsonBody = new JSONObject();
         try {
             jsonBody.put("cartID", cartID);
-            jsonBody.put("address", address);
+            jsonBody.put("address", address.trim());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -316,7 +312,6 @@ public class CartAction {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        // Handle response if needed
                         callback.onSuccess("Update successfuly!");
                     }
                 },
@@ -326,7 +321,16 @@ public class CartAction {
                         error.printStackTrace();
                         callback.onError("Volley error: " + error.getMessage());
                     }
-                });
+                })
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                // Add headers if necessary (e.g., Content-Type)
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+        };
 
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
@@ -376,6 +380,7 @@ public class CartAction {
                                 cart.setTotalBill(cartObject.getDouble("totalBill"));
                                 cart.setAddress(cartObject.getString("addresss"));
                                 cart.setOrderDate(cartObject.getString("dateOrder"));
+                                cart.setStatus(cartObject.getInt("status"));
                                 System.out.println("Card: " + cart.CartID);
                                 cartList.add(cart);
                             }

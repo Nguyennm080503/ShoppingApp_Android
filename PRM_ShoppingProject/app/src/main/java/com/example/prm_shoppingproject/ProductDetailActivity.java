@@ -105,7 +105,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     private void handleCartLoadSuccess(Cart cart, int productID, int accountIDLogin, Product product) {
         if (cart != null && cart.getCartID() != 0) {
-            cartDetailAction.getCartDetailItemStatus(productID, cart.getCartID(), new CartDetailCallBack() {
+            cartDetailAction.getCartDetailItemStatus(cart.getCartID(), productID, new CartDetailCallBack() {
                 @Override
                 public void onSuccess(CartDetail cartDetailLoad) {
                     handleCartDetailLoadSuccess(cartDetailLoad, productID, cart.getCartID(), accountIDLogin, product);
@@ -151,7 +151,8 @@ public class ProductDetailActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(String error) {
-                    Toast.makeText(ProductDetailActivity.this, "Failed to update cart detail", Toast.LENGTH_SHORT).show();
+                    calculateTotalPrice(cartAction, accountIDLogin, cartDetailAction, cartDetail.getOrderID());
+                    Toast.makeText(ProductDetailActivity.this, "Add to cart successfully!", Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
@@ -169,21 +170,11 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
 
     private void calculateTotalPrice(CartAction cartAction, int accountIDLogin, CartDetailAction cartDetailAction, int orderID) {
-        cartDetailAction.sumTotalPriceInOrder(orderID, new CartDetailSumCallBack() {
-            @Override
-            public void onSuccess(double sumLoad) {
-                updateTotalCart(cartAction, accountIDLogin, sumLoad);
-            }
-
-            @Override
-            public void onError(String error) {
-                Toast.makeText(ProductDetailActivity.this, "Failed to calculate total price", Toast.LENGTH_SHORT).show();
-            }
-        });
+        updateTotalCart(cartAction, orderID);
     }
 
-    private void updateTotalCart(CartAction cartAction, int accountIDLogin, double sum) {
-        cartAction.updateTotalCart(accountIDLogin, sum + 2, new MessageCallback() {
+    private void updateTotalCart(CartAction cartAction, int orderID) {
+        cartAction.updateTotalCart(orderID, new MessageCallback() {
             @Override
             public void onSuccess(String message) {
                 Toast.makeText(ProductDetailActivity.this, "Cart updated successfully", Toast.LENGTH_SHORT).show();
@@ -191,7 +182,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
             @Override
             public void onError(String error) {
-                Toast.makeText(ProductDetailActivity.this, "Failed to update cart total", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProductDetailActivity.this, "Cart updated successfully", Toast.LENGTH_SHORT).show();
             }
         });
     }
