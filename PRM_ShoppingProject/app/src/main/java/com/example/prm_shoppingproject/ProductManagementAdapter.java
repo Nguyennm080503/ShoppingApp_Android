@@ -16,6 +16,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.prm_shoppingproject.Interface.Cart.CartCallBack;
+import com.example.prm_shoppingproject.Model.Cart;
 import com.example.prm_shoppingproject.Model.Product;
 import com.example.prm_shoppingproject.Util.ImageUtil;
 
@@ -28,12 +30,10 @@ public class ProductManagementAdapter extends RecyclerView.Adapter<ProductManage
 
     private Context context;
     private List<Product> productList;
-    private SharedPreferences sharedPreferences;
 
     public ProductManagementAdapter(Context context, List<Product> productList) {
         this.context = context;
         this.productList = productList;
-        this.sharedPreferences = context.getSharedPreferences("session", Context.MODE_PRIVATE);
     }
 
     @NonNull
@@ -46,44 +46,7 @@ public class ProductManagementAdapter extends RecyclerView.Adapter<ProductManage
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = productList.get(position);
-        holder.textViewProductName.setText(product.Name);
-        holder.textViewProductPrice.setText(String.format("$%.2f", product.Price));
-
-        Bitmap bitmap = ImageUtil.convertBase64ToBitmap(product.Image);
-        holder.imageViewProduct.setImageBitmap(bitmap);
-
-        holder.btnProductDetail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int productID = product.ProductID;
-                Toast.makeText(context, "Product ID: " + productID, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(context, ProductDetailManagementActivity.class);
-                intent.putExtra("productID", productID);
-                context.startActivity(intent);
-            }
-        });
-
-//        holder.btnBuy.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                int productID = product.ProductID;
-//                ArrayList<CartItem> cartItems = getCartItems();
-//                boolean found = false;
-//                for (CartItem item : cartItems) {
-//                    if (item.getProductID() == productID) {
-//                        item.setQuantity(item.getQuantity() + 1);
-//                        found = true;
-//                        break;
-//                    }
-//                }
-//
-//                if (!found) {
-//                    cartItems.add(new CartItem(productID, 1));
-//                }
-//                saveCartItems(cartItems);
-//                Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show();
-//            }
-//        });
+        holder.bind(product);
     }
 
     @Override
@@ -91,15 +54,12 @@ public class ProductManagementAdapter extends RecyclerView.Adapter<ProductManage
         return productList == null ? 0 : productList.size();
     }
 
-    static class ProductViewHolder extends RecyclerView.ViewHolder {
+    class ProductViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imageViewProduct;
         TextView textViewProductName;
         TextView textViewProductPrice;
         Button btnProductDetail;
-        Button btnDeleleteProduct;
-
-        Button btnBuy;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -107,8 +67,23 @@ public class ProductManagementAdapter extends RecyclerView.Adapter<ProductManage
             textViewProductName = itemView.findViewById(R.id.textViewProductName);
             textViewProductPrice = itemView.findViewById(R.id.textViewProductPrice);
             btnProductDetail = itemView.findViewById(R.id.btnProductDetail);
-//            productDetail = itemView.findViewById(R.id.product_detail);
-//            btnBuy = itemView.findViewById(R.id.btn_addtoCard);
+        }
+
+        void bind(Product product) {
+            textViewProductName.setText(product.getName());
+            textViewProductPrice.setText(String.format("$%.2f", product.getPrice()));
+
+            Bitmap bitmap = ImageUtil.convertBase64ToBitmap(product.getImage());
+            if (bitmap != null) {
+                imageViewProduct.setImageBitmap(bitmap);
+            }
+
+            btnProductDetail.setOnClickListener(v -> {
+                int productID = product.getProductID();
+                Intent intent = new Intent(context, ProductDetailManagementActivity.class);
+                intent.putExtra("productID", productID);
+                context.startActivity(intent);
+            });
         }
     }
 }
