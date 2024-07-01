@@ -208,7 +208,7 @@ public class ProductAction {
                                 String name = productJson.getString("name");
                                 double price = productJson.getDouble("price");
                                 String description = productJson.getString("description");
-                                String base64Image = productJson.getString("image");
+                                String base64Image = productJson.getString("image").trim();
                                 String categoryName = productJson.getString("categoryName");
                                 int status = productJson.getInt("status");
 
@@ -276,14 +276,24 @@ public class ProductAction {
     }
 
     public void UpdateProduct(ProductUpdate product, final MessageCallback callback) {
-        String url = BASE_URL + "/update" + product.ProductID;
+        String url = BASE_URL + "/product/update";
 
-        StringRequest stringRequest = new StringRequest(Request.Method.PUT,
-                url,
-                new Response.Listener<String>() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("productID", product.ProductID);
+            jsonObject.put("name", product.Name);
+            jsonObject.put("price", product.Price);
+            jsonObject.put("description", product.Description);
+            jsonObject.put("typeID", product.TypeID);
+            jsonObject.put("status", product.Status);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, url, jsonObject,
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(String response) {
-                        callback.onSuccess("Account status updated successfully!");
+                    public void onResponse(JSONObject response) {
+                        callback.onSuccess("Product updated successfully!");
                     }
                 },
                 new Response.ErrorListener() {
@@ -294,18 +304,13 @@ public class ProductAction {
                     }
                 }) {
             @Override
-            public byte[] getBody() throws AuthFailureError {
-                Map<String, Integer> params = new HashMap<>();
-                params.put("accountID", product.ProductID);
-                return new JSONObject(params).toString().getBytes(StandardCharsets.UTF_8);
-            }
-
-            @Override
-            public String getBodyContentType() {
-                return "application/json; charset=UTF-8";
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json; charset=UTF-8");
+                return headers;
             }
         };
         RequestQueue requestQueue = Volley.newRequestQueue(context);
-        requestQueue.add(stringRequest);
+        requestQueue.add(jsonObjectRequest);
     }
 }

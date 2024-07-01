@@ -54,6 +54,16 @@ public class ProductDetailManagementActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Product productLoad) {
                 product = productLoad;
+                if (product != null) {
+                    nameProduct.setText(product.getName());
+                    price.setText(String.format("$%.2f", product.getPrice()));
+                    description.setText(product.getDescription());
+
+                    if (product.Image != null) {
+                        Bitmap bitmap = ImageUtil.convertBase64ToBitmap(product.Image);
+                        imageProduct.setImageBitmap(bitmap);
+                    }
+                }
             }
 
             @Override
@@ -74,16 +84,7 @@ public class ProductDetailManagementActivity extends AppCompatActivity {
         editLayout = findViewById(R.id.edit_layout);
         btnEdit = findViewById(R.id.btn_edit);
 
-        if (product != null) {
-            nameProduct.setText(product.getName());
-            price.setText(String.format("$%.2f", product.getPrice()));
-            description.setText(product.getDescription());
 
-            if (product.Image != null) {
-                Bitmap bitmap = ImageUtil.convertBase64ToBitmap(product.Image);
-                imageProduct.setImageBitmap(bitmap);
-            }
-        }
 
         btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,6 +125,7 @@ public class ProductDetailManagementActivity extends AppCompatActivity {
                     product.setPrice(Float.parseFloat(editPrice.getText().toString()));
                     product.setDescription(editDescription.getText().toString());
                     ProductUpdate productUpdate = new ProductUpdate();
+                    productUpdate.ProductID = product.ProductID;
                     productUpdate.Description = product.Description;
                     productUpdate.Name = product.Name;
                     productUpdate.Price = product.Price;
