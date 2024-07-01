@@ -129,11 +129,10 @@ public class ProductAction {
                             double price = response.getDouble("price");
                             String description = response.getString("description");
                             String base64Image = response.getString("image");
-                            byte[] image = Base64.decode(base64Image, Base64.DEFAULT);
                             String categoryName = response.getString("categoryName");
                             int status = response.getInt("status");
 
-                            Product product = new Product(productID, name, price, image, description, categoryName, status);
+                            Product product = new Product(productID, name, price, base64Image, description, categoryName, status);
                             callBack.onSuccess(product);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -168,12 +167,11 @@ public class ProductAction {
                                 String name = productJson.getString("name");
                                 double price = productJson.getDouble("price");
                                 String description = productJson.getString("description");
-                                String base64Image = productJson.getString("image");
-                                byte[] image = Base64.decode(base64Image, Base64.DEFAULT);
+                                String base64Image = productJson.getString("image").trim();
                                 String categoryName = productJson.getString("categoryName");
                                 int status = productJson.getInt("status");
 
-                                Product product = new Product(productID, name, price, image, description, categoryName, status);
+                                Product product = new Product(productID, name, price, base64Image, description, categoryName, status);
                                 products.add(product);
                             }
                             callBack.onSuccess(products);
@@ -211,11 +209,10 @@ public class ProductAction {
                                 double price = productJson.getDouble("price");
                                 String description = productJson.getString("description");
                                 String base64Image = productJson.getString("image");
-                                byte[] image = Base64.decode(base64Image, Base64.DEFAULT);
                                 String categoryName = productJson.getString("categoryName");
                                 int status = productJson.getInt("status");
 
-                                Product product = new Product(productID, name, price, image, description, categoryName, status);
+                                Product product = new Product(productID, name, price, base64Image, description, categoryName, status);
                                 products.add(product);
                             }
                             callBack.onSuccess(products);
@@ -253,11 +250,10 @@ public class ProductAction {
                                 double price = productJson.getDouble("price");
                                 String description = productJson.getString("description");
                                 String base64Image = productJson.getString("image");
-                                byte[] image = Base64.decode(base64Image, Base64.DEFAULT);
                                 String categoryName = productJson.getString("categoryName");
                                 int status = productJson.getInt("status");
 
-                                Product product = new Product(productID, name, price, image, description, categoryName, status);
+                                Product product = new Product(productID, name, price, base64Image, description, categoryName, status);
                                 products.add(product);
                             }
                             callBack.onSuccess(products);

@@ -56,7 +56,7 @@ public class CartDetailAction {
         JSONObject jsonObject = new JSONObject();
 
         try {
-            jsonObject.put("orderID", orderID);
+            jsonObject.put("cartID", orderID);
             jsonObject.put("productID", productID);
             jsonObject.put("quantity", quantity);
             jsonObject.put("unitPrice", total);
@@ -71,14 +71,8 @@ public class CartDetailAction {
                     @Override
                     public void onResponse(String response) {
                         try {
-                            JSONObject object = new JSONObject(response);
-                            if (object.has("statusCode") && object.getInt("statusCode") == 400) {
-                                String message = object.getString("message");
-                                callback.onError(message);
-                            } else {
-                                callback.onSuccess("Create new cart detail successfully!");
-                            }
-                        } catch (JSONException e) {
+                            callback.onSuccess("Create new cart detail successfully!");
+                        } catch (Exception e) {
                             e.printStackTrace();
                             callback.onError("Response parsing error: " + e.getMessage());
                         }
@@ -174,46 +168,16 @@ public class CartDetailAction {
 
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
-    public void sumTotalPriceInOrder(int orderId, final CartDetailSumCallBack callback) {
-        String url = BASE_URL + "/cartdetail/all/" + orderId + "/sum";
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            double sum = response.getDouble("sum");
-                            callback.onSuccess(sum);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            callback.onError("JSON parsing error: " + e.getMessage());
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                        callback.onError("Volley error: " + error.getMessage());
-                    }
-                });
-
-        Volley.newRequestQueue(context).add(jsonObjectRequest);
-    }
     public void updateQuantity(int productID, int quantityStatus, int orderID, int quantity, double total, final MessageCallback callback) {
-        String url = BASE_URL + "/cartdetail/update/";
-        int new_quantity = 0;
-        if(quantityStatus == 1){
-            new_quantity = quantity + 1;
-        }else{
-            new_quantity = quantity - 1;
-        }
+        String url = BASE_URL + "/cartdetail/update";
+        int new_quantity = quantityStatus == 1 ? quantity + 1 : quantity - 1;
         JSONObject jsonBody = new JSONObject();
         try {
             jsonBody.put("cartID", orderID);
             jsonBody.put("productID", productID);
             jsonBody.put("quantity", new_quantity);
-            jsonBody.put("unitPrice", total);
+            jsonBody.put("unitPrice", (int)total);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -231,11 +195,17 @@ public class CartDetailAction {
                         error.printStackTrace();
                         callback.onError("Volley error: " + error.getMessage());
                     }
-                });
-
+                }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+        };
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
-    public void deleteCartDetail(int productID, int orderID, final MessageCallback callback) {
+    public void deleteCartDetail(int orderID, int productID, final MessageCallback callback) {
         String url = BASE_URL + "/cartdetail/delete";
 
         JSONObject jsonObject = new JSONObject();
@@ -253,13 +223,8 @@ public class CartDetailAction {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            if (response.has("statusCode") && response.getInt("statusCode") == 400) {
-                                String message = response.getString("message");
-                                callback.onError(message);
-                            } else {
-                                callback.onSuccess("Deleted cart successfully!");
-                            }
-                        } catch (JSONException e) {
+                            callback.onSuccess("Deleted cart successfully!");
+                        } catch (Exception e) {
                             e.printStackTrace();
                             callback.onError("Response parsing error: " + e.getMessage());
                         }
@@ -283,7 +248,7 @@ public class CartDetailAction {
         Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
     public void updateQuantityReOrder(int productID, int orderID, int quantity, double total, final MessageCallback callback) {
-        String url = BASE_URL + "/cartdetail/update/";
+        String url = BASE_URL + "/cartdetail/update";
         JSONObject jsonBody = new JSONObject();
         try {
             jsonBody.put("cartID", orderID);

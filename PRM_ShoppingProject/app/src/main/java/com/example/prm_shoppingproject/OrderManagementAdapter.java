@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm_shoppingproject.Model.Cart;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class OrderManagementAdapter extends RecyclerView.Adapter<OrderManagementAdapter.OrderViewHolder>{
@@ -38,9 +40,43 @@ public class OrderManagementAdapter extends RecyclerView.Adapter<OrderManagement
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         Cart cart = cartList.get(position);
         holder.orderID.setText(String.valueOf(cart.CartID));
-        holder.orderDate.setText(cart.OrderDate != null ? cart.OrderDate.toString() : "");
+        DateTimeFormatter formatter = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        }
+        String orderDateTrimmed = cart.OrderDate.substring(0, 19);
+        LocalDateTime dateTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            dateTime = LocalDateTime.parse(orderDateTrimmed, formatter);
+        }
+        String formattedDate = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            formattedDate = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        }
+        holder.orderDate.setText(formattedDate);
         holder.totalPrice.setText(String.format("$%.2f", cart.TotalBill));
         holder.status.setText(getStringStatus(cart.Status));
+
+        switch (cart.Status) {
+            case 1:
+                holder.status.setTextColor(context.getResources().getColor(R.color.green));
+                break;
+            case 2:
+                holder.status.setTextColor(context.getResources().getColor(R.color.red));
+                break;
+            case 3:
+                holder.status.setTextColor(context.getResources().getColor(R.color.orange));
+                break;
+            case 4:
+                holder.status.setTextColor(context.getResources().getColor(R.color.blue));
+                break;
+            case 5:
+                holder.status.setTextColor(context.getResources().getColor(R.color.black));
+                break;
+            default:
+                holder.status.setTextColor(context.getResources().getColor(R.color.black));
+                break;
+        }
 
         holder.orderDetail.setOnClickListener(new View.OnClickListener() {
             @Override

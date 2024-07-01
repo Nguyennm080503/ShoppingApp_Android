@@ -17,6 +17,7 @@ import com.example.prm_shoppingproject.Action.CartAction;
 import com.example.prm_shoppingproject.Action.CartDetailAction;
 import com.example.prm_shoppingproject.Action.ProductAction;
 import com.example.prm_shoppingproject.Model.CartProduct;
+import com.example.prm_shoppingproject.Util.ImageUtil;
 
 import java.util.List;
 
@@ -45,13 +46,13 @@ public class OrderDetailManagementAdapter extends RecyclerView.Adapter<OrderDeta
         try {
             CartProduct cartProduct = productCartList.get(position);
             holder.textViewProductName.setText(cartProduct.ProductName);
-            holder.textViewProductPrice.setText(String.format("$%.2f", cartProduct.Price));
+            holder.textViewProductPrice.setText(String.format("$%.2f", cartProduct.PriceTotal));
             holder.quantity.setText(String.valueOf(cartProduct.Quantity));
             productAction = new ProductAction(this.context);
             cartAction = new CartAction(this.context);
             cartDetailAction = new CartDetailAction(this.context);
 
-            Bitmap bitmap = BitmapFactory.decodeByteArray(cartProduct.Image, 0, cartProduct.Image.length);
+            Bitmap bitmap = ImageUtil.convertBase64ToBitmap(cartProduct.Image);
             holder.imageViewProduct.setImageBitmap(bitmap);
 
         }catch (Exception ex){
