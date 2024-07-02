@@ -283,6 +283,7 @@ public class ProductAction {
             jsonObject.put("productID", product.ProductID);
             jsonObject.put("name", product.Name);
             jsonObject.put("price", product.Price);
+            jsonObject.put("image", Base64.encodeToString(product.Image, Base64.DEFAULT));
             jsonObject.put("description", product.Description);
             jsonObject.put("typeID", product.TypeID);
             jsonObject.put("status", product.Status);

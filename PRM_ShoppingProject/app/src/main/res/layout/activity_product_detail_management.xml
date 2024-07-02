@@ -42,6 +42,15 @@
                     android:scaleType="centerCrop"
                     android:src="@drawable/images" />
 
+                <Button
+                    android:id="@+id/buttonSelectImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select Image"
+                    app:layout_constraintTop_toBottomOf="@id/image_product"
+                    tools:layout_editor_absoluteY="362dp"
+                    android:visibility="gone"/>
+
                 <LinearLayout
                     android:id="@+id/original_layout"
                     android:layout_width="match_parent"
@@ -52,7 +61,7 @@
                     android:orientation="horizontal"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/image_product">
+                    app:layout_constraintTop_toBottomOf="@id/buttonSelectImage">
 
                     <TextView
                         android:id="@+id/name_product"
@@ -123,6 +132,25 @@
                 android:text="EditText"
                 android:visibility="gone" />
 
+            <TextView
+                android:id="@+id/category_product"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:padding="10dp"
+                android:text="TextView" />
+
+            <Spinner
+                android:id="@+id/spinner_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:spinnerMode="dropdown"
+                android:visibility="gone"/>
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_edit"
                 android:layout_width="match_parent"

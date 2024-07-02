@@ -6,6 +6,7 @@ public class Product {
     public double Price;
     public String Image;
     public String Description;
+    public int CategoryID;
     public String TypeName;
     public int Status;
 
