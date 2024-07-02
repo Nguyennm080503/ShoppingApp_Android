@@ -106,6 +106,7 @@ public class HomeActivity extends AppCompatActivity implements ProductAdapter.On
         cartView.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, CartActivity.class)));
         profileView.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, ProfileActivity.class)));
         cartScreen.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, CartActivity.class)));
+        mapScreen.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, MapsActivity.class)));
         orderScreen.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, OrderActivity.class)));
         profileScreen.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, ProfileActivity.class)));
         shoeCate.setOnClickListener(v -> startCategoryActivity(1));
